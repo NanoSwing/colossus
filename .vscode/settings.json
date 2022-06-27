@@ -1,0 +1,16 @@
+{
+    "files.associations": {
+        "stdio.h": "c",
+        "glad.h": "c",
+        "chameleon.h": "c",
+        "status.h": "c",
+        "ecs.h": "c",
+        "ecs_internal.h": "c",
+        "da.h": "c",
+        "core.h": "c",
+        "utils.h": "c",
+        "test.h": "c",
+        "ecs_interface.h": "c",
+        "defs.h": "c"
+    }
+}
