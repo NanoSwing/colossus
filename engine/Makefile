@@ -1,8 +1,15 @@
 CC := cc
 CFLAGS := -std=gnu17
-IFLAGS := -Ilibs/glad/include -Iinclude -Isrc
-LFLAGS := -lglfw
+IFLAGS := -Iinclude -Isrc -Ilibs/glad/include -Ilibs/glfw/include
+LFLAGS :=
 DFLAGS :=
+
+# OS detection
+ifeq ($(OS), Windows_NT)
+	LFLAGS += -L../engine/libs/glfw/lib -lglfw3
+else
+	LFLAGS += -lglfw
+endif
 
 debug test: CFLAGS += -ggdb -Wall -Wextra
 release: CFLAGS += -O3
@@ -13,16 +20,16 @@ OBJ = $(SRC:%.c=%.o)
 %.o: %.c
 	$(CC) $(CFLAGS) -fPIC -c $^ -o $@ $(IFLAGS)
 
-chameleon: $(OBJ)
+colossus: $(OBJ)
 	mkdir -p bin
-	ar rcs bin/libchameleon.a $(OBJ)
+	ar rcs bin/libcolossus.a $(OBJ)
 
-debug release: chameleon
+debug release: colossus
 
 .PHONY: clean
 
 clean:
-	rm $(OBJ) bin/libchameleon.a
+	rm $(OBJ) bin/libcolossus.a
 
 test: debug
-	$(CC) $(CFLAGS) -Itests -Iinclude $(wildcard tests/*.c) -o bin/test -Lbin -lchameleon
+	$(CC) $(CFLAGS) -Itests -Iinclude $(wildcard tests/*.c) -o bin/test -Lbin -lcolossus

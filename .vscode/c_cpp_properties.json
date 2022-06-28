@@ -6,7 +6,8 @@
                 "${workspaceFolder}/testbed/src",
                 "${workspaceFolder}/engine/src",
                 "${workspaceFolder}/engine/include",
-                "${workspaceFolder}/engine/libs/glad/include"
+                "${workspaceFolder}/engine/libs/glad/include",
+                "${workspaceFolder}/engine/libs/glfw/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

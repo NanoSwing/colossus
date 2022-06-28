@@ -1,8 +1,15 @@
 CC := cc
 CFLAGS := -std=gnu17
 IFLAGS := -I../engine/include -Isrc
-LFLAGS := -L../engine/bin -lchameleon
+LFLAGS := -L../engine/bin -lcolossus
 DFLAGS :=
+
+# OS detection
+ifeq ($(OS), Windows_NT)
+	LFLAGS += -L../engine/libs/glfw/lib -lglfw3
+else
+	LFLAGS += -lglfw
+endif
 
 debug: CFLAGS += -ggdb -Wall -Wextra
 release: CFLAGS += -O3
@@ -22,4 +29,4 @@ debug release: testbed
 .PHONY: clean
 
 clean:
-	rm -r $(OBJ) bin/testbed
+	rm -f $(OBJ) bin/testbed
