@@ -16,7 +16,7 @@ static I32 compResource(const void *_a, const void *_b)
     return strcmp(a->name, b->name);
 }
 
-static Resource *getResource(const char *name)
+static Resource *internalGetResource(const char *name)
 {
     Resource key;
     strcpy(key.name, name);
@@ -25,15 +25,26 @@ static Resource *getResource(const char *name)
     return resource;
 }
 
+static void resourceUpdate(const void *value, const char *name)
+{
+    Resource *res = internalGetResource(name);
+    if (res == NULL) {
+        return;
+    }
+    
+    memcpy(res->value, value, res->size);
+}
+
 void resourceManagerInit(void)
 {
     resources = daCreate(sizeof(Resource));
 }
 
-void _resourceAdd(const void *value, U64 size, const char *name)
+void _resourceSet(const char *name, const void *value, U64 size)
 {
-    // No duplicate names
-    if (getResource(name) != NULL) {
+    // Update instead of creating new resource
+    if (internalGetResource(name) != NULL) {
+        resourceUpdate(value, name);
         return;
     }
 
@@ -47,19 +58,9 @@ void _resourceAdd(const void *value, U64 size, const char *name)
     qsort(resources, daCount(resources), sizeof(Resource), compResource);
 }
 
-void _resourceUpdate(const void *value, const char *name)
-{
-    Resource *res = getResource(name);
-    if (res == NULL) {
-        return;
-    }
-
-    memcpy(res->value, value, res->size);
-}
-
 void *resourceGet(const char *name)
 {
-    Resource *resource = getResource(name);
+    Resource *resource = internalGetResource(name);
     if (resource == NULL) {
         return NULL;
     }
@@ -71,13 +72,14 @@ void resourceDelete(const char *name)
 {
     Resource key;
     strcpy(key.name, name);
-    I32 index = binarySearch(&key, resources, 0, daCount(resources), sizeof(Resource), compResource);
+    I32 index = binarySearch(resources, &key, 0, daCount(resources), sizeof(Resource), compResource);
 
     if (index == -1) {
         return;
     }
 
-    daPopAt(resources, index, NULL);
+    free(resources[index - 1].value);
+    daPopAt(resources, index - 1, NULL);
 }
 
 void resourceManagerTerminate(void)
