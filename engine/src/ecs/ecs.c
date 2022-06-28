@@ -63,8 +63,10 @@ void ecsBake(ECS *ecs)
  * Get component pointer in the components array by pusing NULL.
  * Set the read-only size of the component.
  * Setup the component.
+ * 
+ * Return component index.
  */
-void ecsAddComponent(ECS *ecs, U64 size)
+U32 ecsAddComponent(ECS *ecs, U64 size)
 {
     Component *comp = daPush(ecs->components, NULL);
 
@@ -72,6 +74,8 @@ void ecsAddComponent(ECS *ecs, U64 size)
     
     comp->entities = daCreate(sizeof(Entity));
     comp->storage = malloc(size * ecs->max_entity_count);
+
+    return daCount(ecs->components) - 1;
 }
 
 /*
@@ -90,7 +94,7 @@ const Component *ecsGetComponent(ECS *ecs, U32 component_id)
 /*
  * Add the system to the system group.
  */
-void ecsAddSystem(ECS *ecs, U32 system_group_id, System system)
+void ecsAddSystem(ECS *ecs, System system, U32 system_group_id)
 {
     daPush(ecs->systems[system_group_id], system);
 }

@@ -52,8 +52,10 @@ extern void ecsBake(ECS *ecs);
  * 
  * ecs - Poitner to ECS.
  * size - Size of the component type.
+ * 
+ * Returns component ID.
  */
-extern void ecsAddComponent(ECS *ecs, U64 size);
+extern U32 ecsAddComponent(ECS *ecs, U64 size);
 /*
  * Retrieve a component.
  *
@@ -72,7 +74,7 @@ extern const Component *ecsGetComponent(ECS *ecs, U32 component_id);
  * system_group_id - ID of system group.
  * system - System function.
  */
-extern void ecsAddSystem(ECS *ecs, U32 system_group_id, System system);
+extern void ecsAddSystem(ECS *ecs, System system, U32 system_group_id);
 /*
  * Run all systems within a system group.
  * Run only systems contained in the specified system group.
