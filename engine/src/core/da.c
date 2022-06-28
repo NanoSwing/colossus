@@ -29,8 +29,7 @@ void _daDestroy(void **da)
 {
     DAheader *head = getHead(*da);
 
-    (void) head;
-    free((*da) - sizeof(DAheader));
+    free(head);
 
     *da = NULL;
 }
