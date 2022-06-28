@@ -6,8 +6,15 @@
 #include <malloc.h>
 #include <stdlib.h>
 
+/*
+ * Define global resources.
+ */
 Resource *resources = NULL;
 
+/*
+ * Local function for comparing resources.
+ * Used when sorting and searching.
+ */
 static I32 compResource(const void *_a, const void *_b)
 {
     const Resource *a = _a;
@@ -16,6 +23,11 @@ static I32 compResource(const void *_a, const void *_b)
     return strcmp(a->name, b->name);
 }
 
+/*
+ * Local function to search for a resource.
+ * 
+ * Returns NULL if it wasn't found.
+ */
 static Resource *internalGetResource(const char *name)
 {
     Resource key;
@@ -25,6 +37,10 @@ static Resource *internalGetResource(const char *name)
     return resource;
 }
 
+/*
+ * Local function to update a resource.
+ * Used by _resourceSet.
+ */
 static void resourceUpdate(const void *value, const char *name)
 {
     Resource *res = internalGetResource(name);
@@ -35,11 +51,17 @@ static void resourceUpdate(const void *value, const char *name)
     memcpy(res->value, value, res->size);
 }
 
+/*
+ * Create the resources array.
+ */
 void resourceManagerInit(void)
 {
     resources = daCreate(sizeof(Resource));
 }
 
+/*
+ * Update resource if it exists. Create a new resource if it doesn't.
+ */
 void _resourceSet(const char *name, const void *value, U64 size)
 {
     // Update instead of creating new resource
@@ -58,6 +80,9 @@ void _resourceSet(const char *name, const void *value, U64 size)
     qsort(resources, daCount(resources), sizeof(Resource), compResource);
 }
 
+/*
+ * Return the resource value if exists. Returns NULL if not.
+ */
 void *resourceGet(const char *name)
 {
     Resource *resource = internalGetResource(name);
@@ -68,6 +93,11 @@ void *resourceGet(const char *name)
     return resource->value;
 }
 
+/*
+ * Find a resource.
+ * Don't do anything if it doesn't exist.
+ * Delete it if it does.
+ */
 void resourceDelete(const char *name)
 {
     Resource key;
@@ -82,6 +112,10 @@ void resourceDelete(const char *name)
     daPopAt(resources, index - 1, NULL);
 }
 
+/*
+ * Free all used resource memory.
+ * Free resources array.
+ */
 void resourceManagerTerminate(void)
 {
     for (U32 i = 0; i < daCount(resources); i++) {
