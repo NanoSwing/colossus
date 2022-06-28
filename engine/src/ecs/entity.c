@@ -6,16 +6,17 @@
 #include <stdlib.h>
 #include <string.h>
 
+/*
+ * Create an entity instance with a ID and the ECS.
+ */
 Entity ecsCreateEntity(ECS *ecs)
 {
     return (Entity) {.ecs = ecs, internalEcsGetEntityID(ecs)};
 }
 
-Entity entityGetByID(ECS *ecs, U32 entity_id)
-{
-    return (Entity) {.ecs = ecs, .ID = entity_id};
-}
-
+/*
+ * Remove all components from entity.
+ */
 void entityDestroy(Entity entity)
 {
     for (U32 i = 0; i < daCount(entity.ecs->components); i++) {
@@ -23,6 +24,11 @@ void entityDestroy(Entity entity)
     }
 }
 
+/*
+ * Set the entity component lookup table to true.
+ * Remove previous component data.
+ * Add entity to component entities array.
+ */
 void entityAddComponent(Entity entity, U32 component_id)
 {
     const ECS *ecs = entity.ecs;
@@ -31,6 +37,9 @@ void entityAddComponent(Entity entity, U32 component_id)
     daPush(ecs->components[component_id].entities, entity);
 }
 
+/*
+ * Compare function for sorting and searching entities by ID.
+ */
 static I32 compEntity(const void *_a, const void *_b)
 {
     const Entity *a = _a;
@@ -38,6 +47,12 @@ static I32 compEntity(const void *_a, const void *_b)
 
     return compInt(&a->ID, &b->ID);
 }
+/*
+ * Remove true flag from entity component lookup table.
+ * Sort the component entities array.
+ * Search for the index of the entity within the component entities array.
+ * Remove entity if found.
+ */
 void entityRemoveComponent(Entity entity, U32 component_id)
 {
     const ECS *ecs = entity.ecs;
@@ -51,11 +66,18 @@ void entityRemoveComponent(Entity entity, U32 component_id)
     daPopAt(comp.entities, index, NULL);
 }
 
+/*
+ * Return entity component lookup table state.
+ */
 B8 entityHasComponent(Entity entity, U32 component_id)
 {
     return entity.ecs->entity_component_table[entity.ID + component_id * entity.ecs->max_entity_count];
 }
 
+/*
+ * If the entity doesn't have the component, return NULL.
+ * Else just return the component data.
+ */
 void *entityGetComponent(Entity entity, U32 component_id)
 {
     if (!entityHasComponent(entity, component_id)) {
