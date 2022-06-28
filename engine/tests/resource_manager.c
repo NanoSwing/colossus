@@ -1,6 +1,6 @@
 #include "test.h"
 
-#include "colossus/resman/resman.h"
+#include "colossus/resource_manager/resource_manager.h"
 
 void testResourceManager(void)
 {

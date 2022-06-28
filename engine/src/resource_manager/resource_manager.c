@@ -1,4 +1,4 @@
-#include "resman/internal_resman.h"
+#include "resource_manager/internal_resource_manager.h"
 #include "colossus/core/da.h"
 #include "colossus/core/utils.h"
 

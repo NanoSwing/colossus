@@ -1,6 +1,6 @@
 #pragma once
 
-#include "colossus/resman/resman.h"
+#include "colossus/resource_manager/resource_manager.h"
 
 /*
  * Resource structure.
