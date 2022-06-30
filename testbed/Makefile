@@ -1,15 +1,8 @@
 CC := cc
 CFLAGS := -std=gnu17
 IFLAGS := -I../engine/include -Isrc
-LFLAGS := -L../engine/bin -lcolossus
+LFLAGS := -L../engine/bin -lcolossus -lm
 DFLAGS :=
-
-# OS detection
-ifeq ($(OS), Windows_NT)
-	LFLAGS += -L../engine/libs/glfw/lib -lglfw3
-else
-	LFLAGS += -lglfw
-endif
 
 debug: CFLAGS += -ggdb -Wall -Wextra
 release: CFLAGS += -O3

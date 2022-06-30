@@ -16,13 +16,15 @@ release: CFLAGS += -O3
 
 SRC := $(wildcard src/*.c) $(wildcard src/**/*.c) $(wildcard src/**/**/*.c) libs/glad/src/glad.c
 OBJ = $(SRC:%.c=%.o)
+GLFW := $(wildcard libs/glfw/src/*.o)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -fPIC -c $^ -o $@ $(IFLAGS)
 
 colossus: $(OBJ)
+	cd libs/glfw ; make
 	mkdir -p bin
-	ar rcs bin/libcolossus.a $(OBJ)
+	ar rcs bin/libcolossus.a $(OBJ) $(GLFW)
 
 debug release: colossus
 
