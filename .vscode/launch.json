@@ -6,12 +6,12 @@
     "configurations": [
         {
             "name": "Launch",
+            "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/testbed/bin/testbed",
             "cwd": "${workspaceFolder}/testbed/bin",
             "stopAtEntry": false,
             "linux": {
-                "type": "cppdbg",
                 "MIMode": "gdb",
                 "miDebuggerPath": "/usr/bin/gdb"
             }

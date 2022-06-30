@@ -1,5 +1,5 @@
 CC := cc
-CFLAGS := -std=c17 -ggdb -Wall
+CFLAGS := -O3
 IFLAGS := -Iinclude -Isrc
 
 DFLAGS := -D_GLFW_USE_OPENGL
@@ -7,10 +7,7 @@ LFLAGS :=
 
 SRC := context.c init.c input.c monitor.c null_init.c null_joystick.c null_monitor.c null_window.c platform.c vulkan.c window.c egl_context.c osmesa_context.c
 
-#
 # OS Detection
-#
-
 # Windows
 ifeq ($(OS), Windows_NT)
 	DFLAGS += -D_WIN32 -D_GLFW_WIN32 -D_GLFW_WGL

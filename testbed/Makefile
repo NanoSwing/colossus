@@ -8,7 +8,7 @@ DFLAGS :=
 # Windows
 ifeq ($(OS), Windows_NT)
 	LFLAGS += -lgdi32
-#Linux
+# Linux
 else
 	LFLAGS += -lm
 endif

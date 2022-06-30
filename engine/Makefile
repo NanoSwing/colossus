@@ -4,25 +4,21 @@ IFLAGS := -Iinclude -Isrc -Ilibs/glad/include -Ilibs/glfw/include
 LFLAGS :=
 DFLAGS :=
 
-# OS detection
-ifeq ($(OS), Windows_NT)
-	LFLAGS += -L../engine/libs/glfw/lib -lglfw3
-else
-	LFLAGS += -lglfw
-endif
-
 debug test: CFLAGS += -ggdb -Wall -Wextra
 release: CFLAGS += -O3
 
 SRC := $(wildcard src/*.c) $(wildcard src/**/*.c) $(wildcard src/**/**/*.c) libs/glad/src/glad.c
 OBJ = $(SRC:%.c=%.o)
-GLFW := $(wildcard libs/glfw/src/*.o)
+GLFW :=
 
 %.o: %.c
 	$(CC) $(CFLAGS) -fPIC -c $^ -o $@ $(IFLAGS)
 
-colossus: $(OBJ)
+build_glfw:
 	cd libs/glfw ; make
+
+colossus: GLFW += $(wildcard libs/glfw/src/*.o)
+colossus: $(OBJ) build_glfw
 	mkdir -p bin
 	ar rcs bin/libcolossus.a $(OBJ) $(GLFW)
 

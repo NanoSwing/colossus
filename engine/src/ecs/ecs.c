@@ -1,6 +1,7 @@
 #include "ecs/internal_ecs.h"
 #include "colossus/ecs/entity.h"
 #include "colossus/core/da.h"
+#include "colossus/core/logger.h"
 
 #include <malloc.h>
 #include <string.h>
@@ -86,6 +87,7 @@ const Component *ecsGetComponent(ECS *ecs, U32 component_id)
 {
     // If the component ID is too high, return NULL
     if (component_id >= daCount(ecs->components)) {
+        logWarn("Component ID too high.");
         return NULL;
     }
 

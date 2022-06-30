@@ -3,6 +3,7 @@
 #include "colossus/core/defs.h"
 #include "colossus/core/utils.h"
 #include "colossus/core/da.h"
+#include "colossus/core/logger.h"
 
 #include "colossus/ecs/ecs.h"
 #include "colossus/ecs/entity.h"
