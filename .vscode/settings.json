@@ -11,6 +11,7 @@
         "utils.h": "c",
         "test.h": "c",
         "ecs_interface.h": "c",
-        "defs.h": "c"
+        "defs.h": "c",
+        "win32_thread.h": "c"
     }
 }

@@ -2,10 +2,10 @@ CC := cc
 CFLAGS := -std=c17 -ggdb -Wall
 IFLAGS := -Iinclude -Isrc
 
-DFLAGS := -D_GLFW_USE_OPENGL -D_POSIX_C_SOURCE=199309L
+DFLAGS := -D_GLFW_USE_OPENGL
 LFLAGS :=
 
-SRC := context.c init.c input.c monitor.c null_init.c null_joystick.c null_monitor.c null_window.c platform.c vulkan.c window.c posix_module.c posix_poll.c posix_thread.c posix_time.c egl_context.c osmesa_context.c
+SRC := context.c init.c input.c monitor.c null_init.c null_joystick.c null_monitor.c null_window.c platform.c vulkan.c window.c egl_context.c osmesa_context.c
 
 #
 # OS Detection
@@ -13,11 +13,13 @@ SRC := context.c init.c input.c monitor.c null_init.c null_joystick.c null_monit
 
 # Windows
 ifeq ($(OS), Windows_NT)
-	DFLAGS += -D_GLFW_WIN32 -D_GLFW_WGL
+	DFLAGS += -D_WIN32 -D_GLFW_WIN32 -D_GLFW_WGL
+	SRC += win32_init.c win32_joystick.c win32_module.c win32_monitor.c win32_thread.c win32_time.c win32_window.c wgl_context.c
+	LFLAGS += -lgdi32
 # Linux
 else
-	DFLAGS += -D_GLFW_X11 -D_GLFW_GLX -D_GLFW_HAS_GLXGETPROCADDRESS
-	SRC += glx_context.c linux_joystick.c x11_init.c x11_monitor.c x11_window.c xkb_unicode.c
+	DFLAGS += -D_GLFW_X11 -D_GLFW_GLX -D_GLFW_HAS_GLXGETPROCADDRESS -D_POSIX_C_SOURCE=199309L
+	SRC += glx_context.c linux_joystick.c x11_init.c x11_monitor.c x11_window.c xkb_unicode.c posix_thread.c posix_time.c posix_module.c posix_poll.c
 	LFLAGS += -lm
 endif
 
