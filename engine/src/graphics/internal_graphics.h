@@ -18,5 +18,7 @@ extern GraphicsContext g_context;
 
 typedef struct {
     Vec2 position;
-    Vec3 color;
+    Vec4 color;
+    float texture_id;
+    Vec2 texture_coords;
 } Vertex;

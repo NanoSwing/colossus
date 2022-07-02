@@ -16,6 +16,8 @@ typedef struct {
 
     Shader shader;
     Mat4 *projection;
+    U32 textures[32];
+    U32 texture_count;
 
     U32 max_quads;
 

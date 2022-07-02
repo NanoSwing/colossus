@@ -1,6 +1,6 @@
 CC := cc
 CFLAGS := -std=gnu17
-IFLAGS := -Iinclude -Isrc -Ilibs/glad/include -Ilibs/glfw/include
+IFLAGS := -Iinclude -Isrc -Ilibs/glad/include -Ilibs/glfw/include -Ilibs/stb
 LFLAGS :=
 DFLAGS :=
 

@@ -40,10 +40,16 @@ void initGraphics(GraphicsConfig config)
     // Create batcher
     Layout *layout = daCreate(sizeof(Layout));
     daPush(layout, ((Layout) {.size = 2, offsetof(Vertex, position)}));
-    daPush(layout, ((Layout) {.size = 3, offsetof(Vertex, color)}));
+    daPush(layout, ((Layout) {.size = 4, offsetof(Vertex, color)}));
+    daPush(layout, ((Layout) {.size = 1, offsetof(Vertex, texture_id)}));
+    daPush(layout, ((Layout) {.size = 2, offsetof(Vertex, texture_coords)}));
     Shader shader = shaderCreate("assets/shaders/default.vert", "assets/shaders/default.frag");
     g_context.batcher = createBatcher(1024, sizeof(Vertex), layout, &g_context.projection, shader);
     daDestroy(layout);
+
+    // Enable blending
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     logInfo("Graphics initialized successfully!");
 }
@@ -86,15 +92,32 @@ void beginBatch(void) { startBatcher(&g_context.batcher); }
 void flushBatch(void) { flushBatcher(&g_context.batcher); }
 void endBatch(void)   { endBatcher(&g_context.batcher);   }
 
-void drawQuad(Vec2 pos, Vec2 size, F32 rotation, Vec3 color)
+void drawQuad(Vec2 pos, Vec2 size, F32 rotation, Vec4 color, U32 texture)
 {
-    if (g_context.batcher.quad_count == g_context.batcher.max_quads) {
+    Batcher *batcher = &g_context.batcher;
+
+    U32 texture_index = 0.0f;
+    B8 found = false;
+    for (U32 i = 0; i < batcher->texture_count; i++) {
+        if (texture == batcher->textures[i]) {
+            texture_index = i;
+            found = true;
+            break;
+        }
+    }
+    if (!found) {
+        texture_index = batcher->texture_count;
+        batcher->textures[texture_index] = texture;
+        batcher->texture_count++;
+    }
+
+    if (batcher->quad_count == batcher->max_quads || batcher->texture_count == 32) {
         endBatch();
         flushBatch();
         beginBatch();
     }
 
-    Vertex *buffer_pointer = g_context.batcher.quad_pointer;
+    Vertex *buffer_pointer = batcher->quad_pointer;
 
     // Bottom left
     Vec2 bl = vec2(-0.5f, -0.5f);
@@ -103,6 +126,8 @@ void drawQuad(Vec2 pos, Vec2 size, F32 rotation, Vec3 color)
     bl = vec2Add(bl, pos);
     buffer_pointer->position = bl;
     buffer_pointer->color = color;
+    buffer_pointer->texture_id = (F32) texture_index;
+    buffer_pointer->texture_coords = vec2(0.0f, 0.0f);
     buffer_pointer++;
 
     // Bottom right
@@ -112,6 +137,8 @@ void drawQuad(Vec2 pos, Vec2 size, F32 rotation, Vec3 color)
     br = vec2Add(br, pos);
     buffer_pointer->position = br;
     buffer_pointer->color = color;
+    buffer_pointer->texture_id = (F32) texture_index;
+    buffer_pointer->texture_coords = vec2(1.0f, 0.0f);
     buffer_pointer++;
     
     // Top left
@@ -121,6 +148,8 @@ void drawQuad(Vec2 pos, Vec2 size, F32 rotation, Vec3 color)
     tl = vec2Add(tl, pos);
     buffer_pointer->position = tl;
     buffer_pointer->color = color;
+    buffer_pointer->texture_id = (F32) texture_index;
+    buffer_pointer->texture_coords = vec2(0.0f, 1.0f);
     buffer_pointer++;
     
     // Top right
@@ -130,8 +159,10 @@ void drawQuad(Vec2 pos, Vec2 size, F32 rotation, Vec3 color)
     tr = vec2Add(tr, pos);
     buffer_pointer->position = tr;
     buffer_pointer->color = color;
+    buffer_pointer->texture_id = (F32) texture_index;
+    buffer_pointer->texture_coords = vec2(1.0f, 1.0f);
     buffer_pointer++;
 
-    g_context.batcher.quad_count++;
-    g_context.batcher.quad_pointer = buffer_pointer;
+    batcher->quad_count++;
+    batcher->quad_pointer = buffer_pointer;
 }
