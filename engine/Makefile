@@ -30,4 +30,4 @@ clean:
 	rm $(OBJ) bin/libcolossus.a
 
 test: debug
-	$(CC) $(CFLAGS) -Itests -Iinclude $(wildcard tests/*.c) -o bin/test -Lbin -lcolossus
+	$(CC) $(CFLAGS) -Itests -Iinclude $(wildcard tests/*.c) -o bin/test -Lbin -lcolossus -lm

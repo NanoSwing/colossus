@@ -10,7 +10,7 @@ void _logMessage(LogLevel level, const char *file, U32 line, const char *message
     va_list ptr;
     va_start(ptr, message);
 
-    char message_buffer[1024];
+    char message_buffer[1024 * 8];
     vsprintf(message_buffer, message, ptr);
     va_end(ptr);
 
@@ -33,7 +33,7 @@ void _logMessage(LogLevel level, const char *file, U32 line, const char *message
     struct tm *tm_struct = localtime(&now);
 
     printf(
-        "%.2u:%.2u:%.2u %s%s \033[0;30m%s:%u: \033[0m%s\n",
+        "%.2u:%.2u:%.2u %s%s \033[0m%s:%u: \033[0m%s\n",
         tm_struct->tm_hour,
         tm_struct->tm_min,
         tm_struct->tm_sec,

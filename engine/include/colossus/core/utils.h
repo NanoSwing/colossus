@@ -66,3 +66,12 @@ extern I32 compInt(const void *_a, const void *_b);
  * Used when sorting and searching an int array.
  */
 extern I32 compStr(const void *_a, const void *_b);
+
+/*
+ * Convert degrees into radians.
+ */
+#define rad(degrees) degrees *  0.017453
+/*
+ * Convert radians into degrees.
+ */
+#define deg(radians) radians * 57.295780
