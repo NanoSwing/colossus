@@ -29,3 +29,5 @@ typedef struct {
     Vec2 position;
     Vec4 color;
 } LineVertex;
+
+extern void drawQuad(Vec2 pos, Vec2 size, F32 rotation, Vec4 color, Texture texture, I32 frame_count, I32 frame);

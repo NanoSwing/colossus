@@ -114,7 +114,7 @@ void endBatch(void)
     endBatcher(&g_context.line_batcher);
 }
 
-static void drawQuad(Vec2 pos, Vec2 size, F32 rotation, Vec4 color, Texture texture, I32 frame_count, I32 frame)
+void drawQuad(Vec2 pos, Vec2 size, F32 rotation, Vec4 color, Texture texture, I32 frame_count, I32 frame)
 {
     Batcher *quad_batcher = &g_context.quad_batcher;
     U32 texture_index;

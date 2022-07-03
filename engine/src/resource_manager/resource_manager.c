@@ -28,6 +28,7 @@ static I32 compResource(const void *_a, const void *_b)
  * 
  * Returns NULL if it wasn't found.
  */
+    // Calculate fps
 static Resource *internalGetResource(const char *name)
 {
     Resource key;
