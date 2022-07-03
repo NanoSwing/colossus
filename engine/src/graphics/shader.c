@@ -6,31 +6,46 @@
 
 #include <glad/glad.h>
 
+/*
+ * Read a file.
+ *
+ * path - Path to file.
+ * 
+ * Returns a char buffer which needs to be freed when done using. Returns NULL if it fails.
+ */
 static char *readFile(const char *path)
 {
+    // Open file
     FILE *fs = fopen(path, "rb");
     if (fs == NULL) {
         logError("Unable to open '%s'!", path);
         return NULL;
     }
 
+    // Get length of file
     U64 len = 0;
     fseek(fs, 0, SEEK_END);
     len = ftell(fs);
     fseek(fs, 0, SEEK_SET);
 
-    char *buffer = malloc(len + 1);
     
+    // Read file
+    char *buffer = malloc(len + 1);
     fread(buffer, 1, len, fs);
+    // Add a null terminator at the end of the buffer to get rid of random characters at the end.
     buffer[len] = '\0';
 
     return buffer;
 }
 
+/*
+ * Create vertex shader.
+ * Create fragment shader.
+ * Create program.
+ * Link program with vertex and fragment shaders.
+ */
 Shader shaderCreate(const char *vertex_path, const char *fragment_path)
 {
-    Shader shader = glCreateProgram();
-
     // Error handling
     I32 success;
     char info_log[512];
@@ -44,6 +59,7 @@ Shader shaderCreate(const char *vertex_path, const char *fragment_path)
     if (!success) {
         glGetShaderInfoLog(vertex_shader, 512, NULL, info_log);
         logWarn("Vertex shader compilation failed: '%s'", info_log);
+        return -1;
     }
 
     U32 fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -55,8 +71,10 @@ Shader shaderCreate(const char *vertex_path, const char *fragment_path)
     if (!success) {
         glGetShaderInfoLog(fragment_shader, 512, NULL, info_log);
         logWarn("Fragment shader compilation failed: '%s'", info_log);
+        return -1;
     }
 
+    Shader shader = glCreateProgram();
     glAttachShader(shader, vertex_shader);
     glAttachShader(shader, fragment_shader);
     glLinkProgram(shader);
@@ -64,6 +82,8 @@ Shader shaderCreate(const char *vertex_path, const char *fragment_path)
     if (!success) {
         glGetProgramInfoLog(shader, 512, NULL, info_log);
         logWarn("Shader linking failed: '%s'", info_log);
+        glDeleteProgram(shader);
+        return -1;
     }
 
     glDeleteShader(vertex_shader);
@@ -72,11 +92,17 @@ Shader shaderCreate(const char *vertex_path, const char *fragment_path)
     return shader;
 }
 
+/*
+ * Delete the program.
+ */
 void shaderDestroy(Shader shader)
 {
     glDeleteProgram(shader);
 }
 
+/*
+ * Send 4x4 matrix uniform.
+ */
 void shaderUniformMat4(Shader shader, const char *name, Mat4 mat)
 {
     I32 location = glGetUniformLocation(shader, name);

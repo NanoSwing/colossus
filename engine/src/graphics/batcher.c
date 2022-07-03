@@ -7,7 +7,13 @@
 
 #include <glad/glad.h>
 
-Batcher createBatcher(U32 max_quads, U64 vertex_size, const Layout *layout, Mat4 *projection, Shader shader)
+/*
+ * Configure batcher.
+ * Create a white texture to use when rendering blank quads.
+ * Configure shader.
+ * Generate OpenGL buffer.
+ */
+Batcher batcherCreate(U32 max_quads, U64 vertex_size, const Layout *layout, Mat4 *projection, Shader shader)
 {
     Batcher batcher;
     batcher.max_quads = max_quads;
@@ -57,8 +63,8 @@ Batcher createBatcher(U32 max_quads, U64 vertex_size, const Layout *layout, Mat4
     }
 
     // Configure element buffer
-    glGenBuffers(1, &batcher.element_array);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, batcher.element_array);
+    glGenBuffers(1, &batcher.element_buffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, batcher.element_buffer);
 
     U32 indices[max_quads * 6];
     U32 offset = 0;
@@ -83,24 +89,30 @@ Batcher createBatcher(U32 max_quads, U64 vertex_size, const Layout *layout, Mat4
     return batcher;
 }
 
-void destroyBatcher(Batcher batcher)
+/*
+ * Clean up.
+ */
+void batcherDestroy(Batcher batcher)
 {
     free(batcher.quad_buffer);
 
     glDeleteVertexArrays(1, &batcher.vertex_array);
     glDeleteBuffers(1, &batcher.vertex_buffer);
-    glDeleteBuffers(1, &batcher.element_array);
+    glDeleteBuffers(1, &batcher.element_buffer);
     shaderDestroy(batcher.shader);
 
     glDeleteTextures(1, &batcher.textures[0]);
 }
 
-void flushBatcher(Batcher *batcher)
+/*
+ * Bind all textures.
+ * Draw call.
+ * Reset batch.
+ */
+void batcherFlush(Batcher *batcher)
 {
     // Bind textures
     for (U32 i = 0; i < batcher->texture_count; i++) {
-        // glActiveTexture(GL_TEXTURE0 + i);
-        // glBindTexture(GL_TEXTURE_2D, batcher->textures[i]);
         glBindTextureUnit(i, batcher->textures[i]);
     }
 
@@ -109,7 +121,7 @@ void flushBatcher(Batcher *batcher)
     shaderUniformMat4(batcher->shader, "projection", *batcher->projection);
 
     glBindVertexArray(batcher->vertex_array);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, batcher->element_array);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, batcher->element_buffer);
 
     glDrawElements(GL_TRIANGLES, batcher->quad_count * 6, GL_UNSIGNED_INT, NULL);
 
@@ -118,12 +130,18 @@ void flushBatcher(Batcher *batcher)
     batcher->texture_count = 1;
 }
 
-void startBatcher(Batcher *batcher)
+/*
+ * Reset quad_pointer for a new batch.
+ */
+void batcherStart(Batcher *batcher)
 {
     batcher->quad_pointer = batcher->quad_buffer;
 }
 
-void endBatcher(Batcher *batcher)
+/*
+ * Send vertex data to vertex buffer.
+ */
+void batcherEnd(Batcher *batcher)
 {
     // Send vertex data to vertex buffer
     U64 size = (U8 *) batcher->quad_pointer - (U8 *) batcher->quad_buffer;
@@ -131,7 +149,10 @@ void endBatcher(Batcher *batcher)
     glBufferSubData(GL_ARRAY_BUFFER, 0, size, batcher->quad_buffer);
 }
 
-void batchQuad(Batcher *batcher, U32 texture_id, U32 *texture_index)
+/*
+ * Setup batching for a new quad.
+ */
+void batchQuad(Batcher *batcher, U32 texture_id, U32 *texture_index, void **buffer_pointer)
 {
     // No texture
     if (texture_index != NULL) {
@@ -155,10 +176,13 @@ void batchQuad(Batcher *batcher, U32 texture_id, U32 *texture_index)
     }
 
     if (batcher->quad_count == batcher->max_quads || batcher->texture_count == 32) {
-        endBatcher(batcher);
-        flushBatcher(batcher);
-        startBatcher(batcher);
+        batcherEnd(batcher);
+        batcherFlush(batcher);
+        batcherStart(batcher);
     }
 
+    *buffer_pointer = batcher->quad_pointer;
+    // Increment quad_pointer by 4 vertices.
+    batcher->quad_pointer += batcher->vertex_size * 4;
     batcher->quad_count++;
 }

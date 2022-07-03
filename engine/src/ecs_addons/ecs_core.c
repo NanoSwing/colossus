@@ -1,7 +1,7 @@
 #include "ecs_addons/internal_ecs_addons.h"
 #include "colossus/resource_manager/resource_manager.h"
 
-static void calculateDeltaTimeSystem(const ECS *ecs)
+static void calculateDeltaTimeSystem(ECS *ecs)
 {
     (void) ecs;
 

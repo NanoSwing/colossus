@@ -29,7 +29,8 @@ void calculateFps(ECS *ecs)
         frame_count = 0.0f;
     }
 
-    logInfo("Delta time: '%f', FPS: '%d'", delta_time, fps);
+    (void) fps;
+    // logInfo("Delta time: '%f', FPS: '%d'", delta_time, fps);
 }
 
 I32 main(void)
@@ -40,9 +41,9 @@ I32 main(void)
         5.0f,
         "Colossus test",
         true,
-        hexRGB_1(0x0f1724)
+        vec3(hexRGB_1(0x0f1724))
     };
-    initGraphics(g_config);
+    graphicsInit(g_config);
     resourceManagerInit();
 
     ECS *ecs = ecsCreate(1024, 1);
@@ -53,7 +54,7 @@ I32 main(void)
 
     ecsBake(ecs);
 
-    Texture tex = textureLoad("assets/textures/test.png");
+    Texture tex = textureLoad("assets/textures/test.png", MIN_MAG_NEAREST);
 
     Entity test = ecsCreateEntity(ecs);
     entityAddComponent(test, COMP_TRANSFORM);
@@ -71,6 +72,6 @@ I32 main(void)
     }
 
     resourceManagerTerminate();
-    terminateGraphics();
+    graphicsTerminate();
     return 0;
 }

@@ -7,7 +7,7 @@ static void renderingSystem(ECS *ecs)
 {
     graphicsLoopBegin();
 
-    Component *sprite_renderer_component = ecsGetComponent(ecs, COMP_SPRITE_RENDERER);
+    const Component *sprite_renderer_component = ecsGetComponent(ecs, COMP_SPRITE_RENDERER);
     SpriteRenderer *sr = sprite_renderer_component->storage;
     Transform *transforms = ecsGetComponent(ecs, COMP_TRANSFORM)->storage;
 
