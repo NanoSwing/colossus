@@ -67,7 +67,7 @@ I32 main(void)
     GraphicsConfig g_config = {
         1280,
         720,
-        8.0f,
+        68.0f,
         "Colossus test",
         true,
         vec3(hexRGB_1(0x0f1724))
@@ -75,7 +75,7 @@ I32 main(void)
     graphicsInit(g_config);
     resourceManagerInit();
 
-    ECS *ecs = ecsCreate(1024, 1);
+    ECS *ecs = ecsCreate(1024 * 16, 1);
     ecsAddonCore(ecs, 0);
     ecsAddonGraphics(ecs, 0);
 
@@ -89,16 +89,17 @@ I32 main(void)
     // Texture tex = textureLoad("assets/textures/test.png", MIN_MAG_NEAREST);
     Texture sheet = textureLoad("assets/textures/rainbow_spritesheet.png", MIN_MAG_NEAREST);
 
-    for (I32 y = -2; y < 2; y++) {
-        for (I32 x = -2; x < 2; x++) {
+    I32 entity_count = 0;
+    for (F32 y = -32.0f; y < 32.0f; y += 0.5f) {
+        for (F32 x = -32.0f; x < 32.0f; x += 0.5f) {
             Entity test = ecsCreateEntity(ecs);
             entityAddComponent(test, COMP_TRANSFORM);
             entityAddComponent(test, COMP_SPRITE_RENDERER);
             entityAddComponent(test, COMP_ANIMATION);
             entityAddComponent(test, COMP_ANIMATION_CONTROLLER);
             Transform *trans = entityGetComponent(test, COMP_TRANSFORM);
-            trans->position = vec2(x + 0.5f, y + 0.5f);
-            trans->scale = vec2s(1.0f);
+            trans->position = vec2(x + 0.25f, y + 0.25f);
+            trans->scale = vec2s(0.4f);
             trans->rotation = 0.0f;
             SpriteRenderer *sr = entityGetComponent(test, COMP_SPRITE_RENDERER);
             sr->texture = sheet;
@@ -106,6 +107,7 @@ I32 main(void)
             Animation *anim = entityGetComponent(test, COMP_ANIMATION);
             anim->frame = 0;
             anim->frame_count = 8;
+            entity_count++;
         }
     }
 
