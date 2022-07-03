@@ -134,21 +134,23 @@ void endBatcher(Batcher *batcher)
 void batchQuad(Batcher *batcher, U32 texture_id, U32 *texture_index)
 {
     // No texture
-    if (texture_id == 0) {
-        *texture_index = 0;
-    } else {
-        B8 found = false;
-        for (U32 i = 0; i < batcher->texture_count; i++) {
-            if (texture_id == batcher->textures[i]) {
-                *texture_index = i;
-                found = true;
-                break;
+    if (texture_index != NULL) {
+        if (texture_id == 0) {
+            *texture_index = 0;
+        } else {
+            B8 found = false;
+            for (U32 i = 0; i < batcher->texture_count; i++) {
+                if (texture_id == batcher->textures[i]) {
+                    *texture_index = i;
+                    found = true;
+                    break;
+                }
             }
-        }
-        if (!found) {
-            *texture_index = batcher->texture_count;
-            batcher->textures[*texture_index] = texture_id;
-            batcher->texture_count++;
+            if (!found) {
+                *texture_index = batcher->texture_count;
+                batcher->textures[*texture_index] = texture_id;
+                batcher->texture_count++;
+            }
         }
     }
 

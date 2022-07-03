@@ -31,3 +31,6 @@ extern void endBatch(void);
 extern void drawColor(Vec2 pos, Vec2 size, F32 rotation, Vec4 color);
 extern void drawTexture(Vec2 pos, Vec2 size, F32 rotation, Texture texture);
 extern void drawSpriteSheet(Vec2 pos, Vec2 size, F32 rotation, SpriteSheet sheet, I32 frame);
+
+extern void drawLinePoints(Vec2 start, Vec2 end, F32 thickness, Vec4 color);
+extern void drawLineLength(Vec2 start, F32 length, F32 angle, F32 thickness, Vec4 color);

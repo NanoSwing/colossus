@@ -27,6 +27,10 @@ static inline Vec2 vec2Normalize(Vec2 a) { return vec2DivS(a, vec2Mag(a)); }
 
 static inline Vec2 vec2Rot(Vec2 a, F32 degrees)
 {
+    if (degrees == 0) {
+        return a;
+    }
+
     F32 rads = rad(-degrees);
     return vec2(
         cos(rads) * a.x - sin(rads) * a.y,

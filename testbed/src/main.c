@@ -11,7 +11,7 @@ I32 main(void)
     GraphicsConfig g_config = {
         1280,
         720,
-        3.0f,
+        8.0f,
         "Colossus test",
         true,
         hexRGB_1(0x0f1724)
@@ -40,16 +40,37 @@ I32 main(void)
         delta_time = (current_time - last_time);
         last_time = current_time;
 
+        // Calculate fps
+        const F32 update_rate = 4.0f;
+        static F32 next_update = 0.0f;
+        static I32 frame_count = 0;
+        static I32 fps = 0;
 
-        // for (F32 y = -3; y <= 3; y += 0.2f) {
-        //     for (F32 x = -3; x <= 3; x += 0.2f) {
-        //         drawQuad(vec2(x, y), vec2s(0.2f), rotation, vec4((x + 3.0f) / 6.0f, (y + 3.0f) / 6.0f, 0.0f, 1.0f), test);
-        //     }
-        // }
+        frame_count++;
+        next_update += delta_time;
+        if (next_update >= 1.0f / update_rate) {
+            next_update = 0.0f;
+            fps = frame_count * update_rate;
+            frame_count = 0.0f;
+        }
+        logInfo("Delta time: '%f', FPS: '%d'", delta_time, fps);
 
-        drawTexture(vec2(-1, 0), vec2s(1), 0, test);
-        drawColor(vec2(0, 0), vec2s(1), 0, vec4(1, 0.5f, 0.5f, 1.0f));
-        drawSpriteSheet(vec2(1, 0), vec2s(1), 0, rainbow_sheet, frame);
+
+        for (F32 y = -3; y <= 3; y += 0.2f) {
+            for (F32 x = -3; x <= 3; x += 0.2f) {
+                drawColor(vec2(x, y), vec2s(0.2f), 0, vec4((x + 3.0f) / 6.0f, (y + 3.0f) / 6.0f, 0.0f, 1.0f));
+            }
+        }
+
+        F32 distance_between = 360.0f / 90.0f;
+        F32 starting_angle = -360.0f + distance_between;
+        for (F32 i = starting_angle; i <= 0; i += distance_between) {
+            drawLineLength(vec2s(0.0f), 2.0f, i, 0.01f, vec4(hexRGBA_1(0xFFFFFF80)));
+        }
+
+        // drawTexture(vec2(0, 0), vec2s(1), 0, test);
+        // drawColor(vec2(1, 1), vec2(0.25f, 1), 45, vec4(1, 0.5f, 0.5f, 1.0f));
+        drawSpriteSheet(vec2s(0), vec2s(1), 0, rainbow_sheet, frame);
 
         timer += delta_time;
         if (timer >= 0.1f) {

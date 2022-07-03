@@ -9,8 +9,10 @@ typedef struct {
     GLFWwindow *window;
     GraphicsConfig config;
 
-    Batcher batcher;
+    Batcher quad_batcher;
     Mat4 projection;
+
+    Batcher line_batcher;
 } GraphicsContext;
 
 /* Global graphics context. */
@@ -22,3 +24,8 @@ typedef struct {
     float texture_id;
     Vec2 texture_coords;
 } Vertex;
+
+typedef struct {
+    Vec2 position;
+    Vec4 color;
+} LineVertex;
