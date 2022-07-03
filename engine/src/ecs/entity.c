@@ -32,8 +32,8 @@ void entityDestroy(Entity entity)
 void entityAddComponent(Entity entity, U32 component_id)
 {
     const ECS *ecs = entity.ecs;
-    ecs->entity_component_table[entity.ID + component_id * ecs->max_entity_count] = true;
-    memset(ecs->components[component_id].storage + entity.ID * ecs->components[component_id].size, 0, ecs->components[component_id].size);
+    ecs->entity_component_table[entity.id + component_id * ecs->max_entity_count] = true;
+    memset(ecs->components[component_id].storage + entity.id * ecs->components[component_id].size, 0, ecs->components[component_id].size);
     daPush(ecs->components[component_id].entities, entity);
 }
 
@@ -45,7 +45,7 @@ static I32 compEntity(const void *_a, const void *_b)
     const Entity *a = _a;
     const Entity *b = _b;
 
-    return compInt(&a->ID, &b->ID);
+    return compInt(&a->id, &b->id);
 }
 /*
  * Remove true flag from entity component lookup table.
@@ -57,7 +57,7 @@ void entityRemoveComponent(Entity entity, U32 component_id)
 {
     const ECS *ecs = entity.ecs;
     Component comp = ecs->components[component_id];
-    ecs->entity_component_table[entity.ID + component_id * ecs->max_entity_count] = false;
+    ecs->entity_component_table[entity.id + component_id * ecs->max_entity_count] = false;
     qsort(comp.entities, daCount(comp.entities), sizeof(Entity), compEntity);
     I32 index = binarySearch(comp.entities, &entity, 0, daCount(comp.entities), sizeof(Entity), compEntity);
     if (index == -1) {
@@ -71,7 +71,7 @@ void entityRemoveComponent(Entity entity, U32 component_id)
  */
 B8 entityHasComponent(Entity entity, U32 component_id)
 {
-    return entity.ecs->entity_component_table[entity.ID + component_id * entity.ecs->max_entity_count];
+    return entity.ecs->entity_component_table[entity.id + component_id * entity.ecs->max_entity_count];
 }
 
 /*
@@ -84,5 +84,5 @@ void *entityGetComponent(Entity entity, U32 component_id)
         return NULL;
     }
     Component comp = entity.ecs->components[component_id];
-    return comp.storage + entity.ID * comp.size;
+    return comp.storage + entity.id * comp.size;
 }

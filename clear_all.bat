@@ -2,12 +2,12 @@
 
 echo Building engine...
 pushd engine
-make release
+make clear
 popd
 
 echo.
 
 echo Building testbed...
 pushd testbed
-make release
+make clear
 popd
