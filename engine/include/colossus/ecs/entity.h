@@ -13,7 +13,7 @@ typedef struct {
     /* The ECS the entity belongs to. */
     const ECS *ecs;
     /* The ID of the entity. */
-    const U32 ID;
+    const U32 id;
 } Entity;
 
 /*

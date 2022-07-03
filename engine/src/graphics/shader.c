@@ -108,3 +108,9 @@ void shaderUniformMat4(Shader shader, const char *name, Mat4 mat)
     I32 location = glGetUniformLocation(shader, name);
     glUniformMatrix4fv(location, 1, false, &mat.a.x);
 }
+
+void shaderUniformVec2(Shader shader, const char *name, Vec2 vec)
+{
+    I32 location = glGetUniformLocation(shader, name);
+    glUniform2fv(location, 1, &vec.x);
+}

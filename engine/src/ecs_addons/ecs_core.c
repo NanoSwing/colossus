@@ -8,7 +8,12 @@ static void calculateDeltaTimeSystem(ECS *ecs)
     static F32 current_time = 0.0f;
     static F32 last_time = 0.0f;
     static F32 delta_time = 0.0f;
-    
+
+    // Give last_time an initial value so delta_time isn't super high at the start.    
+    if (last_time == 0) {
+        last_time = getTime();
+    }
+
     current_time = getTime();
     delta_time = (current_time - last_time);
     last_time = current_time;

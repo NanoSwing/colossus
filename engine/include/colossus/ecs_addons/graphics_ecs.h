@@ -16,6 +16,17 @@ typedef struct {
 extern I32 COMP_SPRITE_RENDERER;
 
 /*
+ * Animation component.
+ */
+typedef struct {
+    /* Amount of frames in a sprite sheet. */
+    I32 frame_count;
+    /* Current frame displayed. */
+    I32 frame;
+} Animation;
+extern I32 COMP_ANIMATION;
+
+/*
  * Adds graphics components and systems.
  *
  * ecs - ECS.

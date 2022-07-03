@@ -29,8 +29,37 @@ void calculateFps(ECS *ecs)
         frame_count = 0.0f;
     }
 
-    (void) fps;
-    // logInfo("Delta time: '%f', FPS: '%d'", delta_time, fps);
+    logInfo("Delta time: '%f', FPS: '%d'", delta_time, fps);
+}
+
+I32 COMP_ANIMATION_CONTROLLER = -1;
+typedef struct {
+    F32 timer;
+} AnimationController;
+void animator(ECS *ecs)
+{
+    F32 delta_time = *(F32 *) resourceGet("delta_time");
+
+    const Component *controller_component = ecsGetComponent(ecs, COMP_ANIMATION_CONTROLLER);
+    AnimationController *controllers = controller_component->storage;
+    Animation *anims = ecsGetComponent(ecs, COMP_ANIMATION)->storage;
+    for (U32 i = 0; i < daCount(controller_component->entities); i++) {
+        Entity ent = controller_component->entities[i];
+        if (!entityHasComponent(ent, COMP_ANIMATION)) {
+            continue;
+        }
+        
+        I32 e = ent.id;
+
+        controllers[e].timer += delta_time;
+        if (controllers[e].timer >= 0.1f) {
+            controllers[e].timer = 0.0f;
+            anims[e].frame++;
+            if (anims[e].frame == 8) {
+                anims[e].frame = 0;
+            }
+        }
+    }
 }
 
 I32 main(void)
@@ -38,7 +67,7 @@ I32 main(void)
     GraphicsConfig g_config = {
         1280,
         720,
-        5.0f,
+        8.0f,
         "Colossus test",
         true,
         vec3(hexRGB_1(0x0f1724))
@@ -50,26 +79,41 @@ I32 main(void)
     ecsAddonCore(ecs, 0);
     ecsAddonGraphics(ecs, 0);
 
+    COMP_ANIMATION_CONTROLLER = ecsAddComponent(ecs, sizeof(AnimationController));
+
     ecsAddSystem(ecs, calculateFps, 0);
+    ecsAddSystem(ecs, animator, 0);
 
     ecsBake(ecs);
 
-    Texture tex = textureLoad("assets/textures/test.png", MIN_MAG_NEAREST);
+    // Texture tex = textureLoad("assets/textures/test.png", MIN_MAG_NEAREST);
+    Texture sheet = textureLoad("assets/textures/rainbow_spritesheet.png", MIN_MAG_NEAREST);
 
-    Entity test = ecsCreateEntity(ecs);
-    entityAddComponent(test, COMP_TRANSFORM);
-    entityAddComponent(test, COMP_SPRITE_RENDERER);
-    Transform *trans = entityGetComponent(test, COMP_TRANSFORM);
-    trans->position = vec2s(0.0f);
-    trans->scale = vec2s(1.0f);
-    trans->rotation = 0.0f;
-    SpriteRenderer *sr = entityGetComponent(test, COMP_SPRITE_RENDERER);
-    sr->texture = tex;
-    sr->color = vec4s(1.0f);
+    for (I32 y = -2; y < 2; y++) {
+        for (I32 x = -2; x < 2; x++) {
+            Entity test = ecsCreateEntity(ecs);
+            entityAddComponent(test, COMP_TRANSFORM);
+            entityAddComponent(test, COMP_SPRITE_RENDERER);
+            entityAddComponent(test, COMP_ANIMATION);
+            entityAddComponent(test, COMP_ANIMATION_CONTROLLER);
+            Transform *trans = entityGetComponent(test, COMP_TRANSFORM);
+            trans->position = vec2(x + 0.5f, y + 0.5f);
+            trans->scale = vec2s(1.0f);
+            trans->rotation = 0.0f;
+            SpriteRenderer *sr = entityGetComponent(test, COMP_SPRITE_RENDERER);
+            sr->texture = sheet;
+            sr->color = vec4s(1.0f);
+            Animation *anim = entityGetComponent(test, COMP_ANIMATION);
+            anim->frame = 0;
+            anim->frame_count = 8;
+        }
+    }
 
     while (graphicsRunning()) {
         ecsRun(ecs, 0);
     }
+
+    textureDestroy(sheet);
 
     resourceManagerTerminate();
     graphicsTerminate();

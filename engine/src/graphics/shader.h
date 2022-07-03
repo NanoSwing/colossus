@@ -1,6 +1,7 @@
 #pragma once
 
 #include "colossus/core/defs.h"
+#include "colossus/core/math/vec2.h"
 #include "colossus/core/math/mat4.h"
 
 /*
@@ -32,3 +33,11 @@ extern void shaderDestroy(Shader shader);
  * mat - 4x4 matrix.
  */
 extern void shaderUniformMat4(Shader shader, const char *name, Mat4 mat);
+/*
+ * Uploads a 2D vector to a shader.
+ *
+ * shader - Shader ID.
+ * name - Name of uniform.
+ * vec - 2D vector.
+ */
+extern void shaderUniformVec2(Shader shader, const char *name, Vec2 vector);
