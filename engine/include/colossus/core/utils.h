@@ -75,3 +75,8 @@ extern I32 compStr(const void *_a, const void *_b);
  * Convert radians into degrees.
  */
 #define deg(radians) radians * 57.295780
+
+/*
+ * Gets time with a high resolution clock.
+ */
+extern F64 getTime(void);

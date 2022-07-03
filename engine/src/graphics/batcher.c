@@ -130,3 +130,33 @@ void endBatcher(Batcher *batcher)
     glBindBuffer(GL_ARRAY_BUFFER, batcher->vertex_buffer);
     glBufferSubData(GL_ARRAY_BUFFER, 0, size, batcher->quad_buffer);
 }
+
+void batchQuad(Batcher *batcher, U32 texture_id, U32 *texture_index)
+{
+    // No texture
+    if (texture_id == 0) {
+        *texture_index = 0;
+    } else {
+        B8 found = false;
+        for (U32 i = 0; i < batcher->texture_count; i++) {
+            if (texture_id == batcher->textures[i]) {
+                *texture_index = i;
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            *texture_index = batcher->texture_count;
+            batcher->textures[*texture_index] = texture_id;
+            batcher->texture_count++;
+        }
+    }
+
+    if (batcher->quad_count == batcher->max_quads || batcher->texture_count == 32) {
+        endBatcher(batcher);
+        flushBatcher(batcher);
+        startBatcher(batcher);
+    }
+
+    batcher->quad_count++;
+}

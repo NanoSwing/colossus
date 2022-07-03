@@ -92,32 +92,16 @@ void beginBatch(void) { startBatcher(&g_context.batcher); }
 void flushBatch(void) { flushBatcher(&g_context.batcher); }
 void endBatch(void)   { endBatcher(&g_context.batcher);   }
 
-void drawQuad(Vec2 pos, Vec2 size, F32 rotation, Vec4 color, U32 texture)
+static void drawQuad(Vec2 pos, Vec2 size, F32 rotation, Vec4 color, Texture texture, I32 frame_count, I32 frame)
 {
     Batcher *batcher = &g_context.batcher;
-
-    U32 texture_index = 0.0f;
-    B8 found = false;
-    for (U32 i = 0; i < batcher->texture_count; i++) {
-        if (texture == batcher->textures[i]) {
-            texture_index = i;
-            found = true;
-            break;
-        }
-    }
-    if (!found) {
-        texture_index = batcher->texture_count;
-        batcher->textures[texture_index] = texture;
-        batcher->texture_count++;
-    }
-
-    if (batcher->quad_count == batcher->max_quads || batcher->texture_count == 32) {
-        endBatch();
-        flushBatch();
-        beginBatch();
-    }
+    U32 texture_index;
+    batchQuad(batcher, texture.id, &texture_index);
 
     Vertex *buffer_pointer = batcher->quad_pointer;
+
+    F32 sprite_height = (F32) texture.height / (F32) frame_count;
+    F32 sheet_height = (F32) texture.height;
 
     // Bottom left
     Vec2 bl = vec2(-0.5f, -0.5f);
@@ -127,7 +111,7 @@ void drawQuad(Vec2 pos, Vec2 size, F32 rotation, Vec4 color, U32 texture)
     buffer_pointer->position = bl;
     buffer_pointer->color = color;
     buffer_pointer->texture_id = (F32) texture_index;
-    buffer_pointer->texture_coords = vec2(0.0f, 0.0f);
+    buffer_pointer->texture_coords = vec2(0.0f, ((F32) (frame_count - frame - 1) * sprite_height) / sheet_height);
     buffer_pointer++;
 
     // Bottom right
@@ -138,7 +122,7 @@ void drawQuad(Vec2 pos, Vec2 size, F32 rotation, Vec4 color, U32 texture)
     buffer_pointer->position = br;
     buffer_pointer->color = color;
     buffer_pointer->texture_id = (F32) texture_index;
-    buffer_pointer->texture_coords = vec2(1.0f, 0.0f);
+    buffer_pointer->texture_coords = vec2(1.0f, ((F32) (frame_count - frame - 1) * sprite_height) / sheet_height);
     buffer_pointer++;
     
     // Top left
@@ -149,7 +133,7 @@ void drawQuad(Vec2 pos, Vec2 size, F32 rotation, Vec4 color, U32 texture)
     buffer_pointer->position = tl;
     buffer_pointer->color = color;
     buffer_pointer->texture_id = (F32) texture_index;
-    buffer_pointer->texture_coords = vec2(0.0f, 1.0f);
+    buffer_pointer->texture_coords = vec2(0.0f, (((F32) (frame_count - frame - 1) + 1.0f) * sprite_height) / sheet_height);
     buffer_pointer++;
     
     // Top right
@@ -160,9 +144,23 @@ void drawQuad(Vec2 pos, Vec2 size, F32 rotation, Vec4 color, U32 texture)
     buffer_pointer->position = tr;
     buffer_pointer->color = color;
     buffer_pointer->texture_id = (F32) texture_index;
-    buffer_pointer->texture_coords = vec2(1.0f, 1.0f);
+    buffer_pointer->texture_coords = vec2(1.0f, (((F32) (frame_count - frame - 1) + 1.0f) * sprite_height) / sheet_height);
     buffer_pointer++;
 
-    batcher->quad_count++;
     batcher->quad_pointer = buffer_pointer;
+}
+
+void drawColor(Vec2 pos, Vec2 size, F32 rotation, Vec4 color)
+{
+    drawQuad(pos, size, rotation, color, ((Texture) {.id = 0}), 1, 0);
+}
+
+void drawTexture(Vec2 pos, Vec2 size, F32 rotation, Texture texture)
+{
+    drawQuad(pos, size, rotation, vec4s(1), texture, 1, 0);
+}
+
+void drawSpriteSheet(Vec2 pos, Vec2 size, F32 rotation, SpriteSheet sheet, I32 frame)
+{
+    drawQuad(pos, size, rotation, vec4s(1), sheet.texture, sheet.frame_count, frame);
 }

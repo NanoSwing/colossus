@@ -3,6 +3,7 @@
 #include "colossus/core/defs.h"
 #include "colossus/core/math/vec2.h"
 #include "colossus/core/math/vec4.h"
+#include "colossus/graphics/texture.h"
 
 typedef struct {
     I32 width;
@@ -27,4 +28,6 @@ extern void beginBatch(void);
 extern void flushBatch(void);
 extern void endBatch(void);
 
-extern void drawQuad(Vec2 pos, Vec2 size, F32 rotation, Vec4 color, U32 texture);
+extern void drawColor(Vec2 pos, Vec2 size, F32 rotation, Vec4 color);
+extern void drawTexture(Vec2 pos, Vec2 size, F32 rotation, Texture texture);
+extern void drawSpriteSheet(Vec2 pos, Vec2 size, F32 rotation, SpriteSheet sheet, I32 frame);

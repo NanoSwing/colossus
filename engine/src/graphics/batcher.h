@@ -3,6 +3,7 @@
 #include "colossus/core/defs.h"
 #include "graphics/shader.h"
 #include "colossus/core/math/mat4.h"
+#include "colossus/graphics/texture.h"
 
 typedef struct {
     U32 size;
@@ -35,3 +36,4 @@ extern void destroyBatcher(Batcher batcher);
 extern void flushBatcher(Batcher *batcher);
 extern void startBatcher(Batcher *batcher);
 extern void endBatcher(Batcher *batcher);
+extern void batchQuad(Batcher *batcher, U32 texture_id, U32 *texture_index);

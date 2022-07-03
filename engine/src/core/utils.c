@@ -1,6 +1,8 @@
 #include "colossus/core/utils.h"
+#include "colossus/core/logger.h"
 
 #include <string.h>
+#include <time.h>
 
 /*
  * If the starting point is greater than the end point the item could not be found.
@@ -56,4 +58,12 @@ I32 compStr(const void *_a, const void *_b)
     const char *b = _b;
     
     return strcmp(a, b);
+}
+
+F64 getTime(void)
+{
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    F64 time = (F64) ts.tv_sec + ((F64) ts.tv_nsec / 1E9);
+    return time;
 }
