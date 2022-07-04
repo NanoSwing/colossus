@@ -10,18 +10,22 @@
 /*
  * Initialize the ECS.
  */
-ECS *ecsCreate(U32 max_entity_count, U32 system_group_count)
+ECS *ecsCreate(I32 max_entity_count, I32 system_group_count)
 {
     ECS *ecs = malloc(sizeof(ECS));
 
     ecs->max_entity_count = max_entity_count;
-    ecs->current_entity_id = 0;
+
+    ecs->available_entities = daCreate(sizeof(I32));
+    for (I32 i = 0; i < max_entity_count; i++) {
+        daPush(ecs->available_entities, i);
+    }
 
     ecs->components = daCreate(sizeof(Component));
 
     // Add system groups
     ecs->systems = daCreate(sizeof(System *));
-    for (U32 i = 0; i < system_group_count; i++) {
+    for (I32 i = 0; i < system_group_count; i++) {
         daPush(ecs->systems, daCreate(sizeof(System)));
     }
 
@@ -34,7 +38,7 @@ ECS *ecsCreate(U32 max_entity_count, U32 system_group_count)
 void ecsDestroy(ECS **ecs)
 {
     // Free all component data
-    for (U32 i = 0; i < daCount((*ecs)->components); i++) {
+    for (I32 i = 0; i < daCount((*ecs)->components); i++) {
         daDestroy((*ecs)->components[i].entities);
         free((*ecs)->components[i].storage);
     }
@@ -43,10 +47,12 @@ void ecsDestroy(ECS **ecs)
     free((*ecs)->entity_component_table);
 
     // Free all system groups
-    for (U32 i = 0; i < daCount((*ecs)->systems); i++) {
+    for (I32 i = 0; i < daCount((*ecs)->systems); i++) {
         daDestroy((*ecs)->systems[i]);
     }
     daDestroy((*ecs)->systems);
+
+    daDestroy((*ecs)->available_entities);
 
     free(*ecs);
     // Make sure the pointer doesn't presist.
@@ -68,22 +74,23 @@ void ecsBake(ECS *ecs)
  * 
  * Return component index.
  */
-U32 ecsAddComponent(ECS *ecs, U64 size)
+I32 ecsAddComponent(ECS *ecs, U64 size)
 {
-    Component *comp = daPush(ecs->components, NULL);
+    Component comp = {
+        .size = size,
+    };
 
-    memcpy((U64 *) &comp->size, &size, sizeof(U64));
-    
-    comp->entities = daCreate(sizeof(Entity));
-    comp->storage = malloc(size * ecs->max_entity_count);
+    comp.entities = daCreate(sizeof(Entity));
+    comp.storage = malloc(size * ecs->max_entity_count);
 
+    daPush(ecs->components, comp);
     return daCount(ecs->components) - 1;
 }
 
 /*
  * Return the component requested.
  */
-const Component *ecsGetComponent(ECS *ecs, U32 component_id)
+const Component *ecsGetComponent(ECS *ecs, I32 component_id)
 {
     // If the component ID is too high, return NULL
     if (component_id >= daCount(ecs->components)) {
@@ -97,7 +104,7 @@ const Component *ecsGetComponent(ECS *ecs, U32 component_id)
 /*
  * Add the system to the system group.
  */
-void ecsAddSystem(ECS *ecs, System system, U32 system_group_id)
+void ecsAddSystem(ECS *ecs, System system, I32 system_group_id)
 {
     daPush(ecs->systems[system_group_id], system);
 }
@@ -107,13 +114,13 @@ void ecsAddSystem(ECS *ecs, System system, U32 system_group_id)
  *
  * Run all systems inside the system group.
  */
-I32 ecsRun(ECS *ecs, U32 system_group_id)
+I32 ecsRun(ECS *ecs, I32 system_group_id)
 {
     if (system_group_id >= daCount(ecs->systems)) {
         return false;
     }
 
-    for (U32 i = 0; i < daCount(ecs->systems[system_group_id]); i++) {
+    for (I32 i = 0; i < daCount(ecs->systems[system_group_id]); i++) {
         ecs->systems[system_group_id][i](ecs);
     }
 
@@ -124,9 +131,17 @@ I32 ecsRun(ECS *ecs, U32 system_group_id)
  * Just return the next entity.
  * TODO: Update with deleted entities.
  */
-U32 internalEcsGetEntityID(ECS *ecs)
+I32 internalEcsGetEntityID(ECS *ecs)
 {
-    return ecs->current_entity_id++;
+    if (daCount(ecs->available_entities) == 0) {
+        logWarn("Max amount of entities reached.");
+        return -1;
+    }
+
+    I32 ent;
+    daPop(ecs->available_entities, &ent);
+
+    return ent;
 }
 
 /*
@@ -134,8 +149,8 @@ U32 internalEcsGetEntityID(ECS *ecs)
  */
 void ecsDebugPrintTable(ECS *ecs)
 {
-    for (U32 y = 0; y < daCount(ecs->components); y++) {
-        for (U32 x = 0; x < ecs->max_entity_count; x++) {
+    for (I32 y = 0; y < daCount(ecs->components); y++) {
+        for (I32 x = 0; x < ecs->max_entity_count; x++) {
             printf("%d ", ecs->entity_component_table[x + y * ecs->max_entity_count]);
         }
         printf("\n");

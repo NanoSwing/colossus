@@ -9,8 +9,8 @@
  */
 extern void *daCreate(U64 size);
 extern void _daDestroy(void **da);
-extern void *_daPushAt(void **da, U32 index, void *data);
-extern void _daPopAt(void **da, U32 index, void *output);
+extern void *_daPushAt(void **da, I32 index, void *data);
+extern void _daPopAt(void **da, I32 index, void *output);
 /*
  * Get the amount of items stored in a dynamic array.
  *
@@ -18,7 +18,7 @@ extern void _daPopAt(void **da, U32 index, void *output);
  * 
  * Returns the amount of items stored.
  */
-extern U64 daCount(const void *da);
+extern I64 daCount(const void *da);
 
 /*
  * Frees all allocated memory dedicated to the dynamic array and sets the dynamic array pointer to null.

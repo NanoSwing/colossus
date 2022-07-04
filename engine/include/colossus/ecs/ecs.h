@@ -31,7 +31,7 @@ typedef void (*System)(ECS *ecs);
  * 
  * Returns the configured ECS.
  */
-extern ECS *ecsCreate(U32 max_entity_count, U32 system_group_count);
+extern ECS *ecsCreate(I32 max_entity_count, I32 system_group_count);
 /*
  * Destroy and clean up the ECS, freeing all used memory.
  * Sets the passed ECS pointer to NULL.
@@ -55,7 +55,7 @@ extern void ecsBake(ECS *ecs);
  * 
  * Returns component ID.
  */
-extern U32 ecsAddComponent(ECS *ecs, U64 size);
+extern I32 ecsAddComponent(ECS *ecs, U64 size);
 /*
  * Retrieve a component.
  *
@@ -64,7 +64,7 @@ extern U32 ecsAddComponent(ECS *ecs, U64 size);
  * 
  * Return the component queried. Returns NULL if not found.
  */
-extern const Component *ecsGetComponent(ECS *ecs, U32 component_id);
+extern const Component *ecsGetComponent(ECS *ecs, I32 component_id);
 
 /*
  * Adds a system to a specified system group.
@@ -74,7 +74,7 @@ extern const Component *ecsGetComponent(ECS *ecs, U32 component_id);
  * system_group_id - ID of system group.
  * system - System function.
  */
-extern void ecsAddSystem(ECS *ecs, System system, U32 system_group_id);
+extern void ecsAddSystem(ECS *ecs, System system, I32 system_group_id);
 /*
  * Run all systems within a system group.
  * Run only systems contained in the specified system group.
@@ -84,7 +84,7 @@ extern void ecsAddSystem(ECS *ecs, System system, U32 system_group_id);
  * 
  * Returns 0/false if the system group couldn't be found. Returns 1/true if it successfully ran the systems in the system group.
  */
-extern I32 ecsRun(ECS *ecs, U32 system_group_id);
+extern I32 ecsRun(ECS *ecs, I32 system_group_id);
 
 /*
  * Prints out the look up table for entities and components.

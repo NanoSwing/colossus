@@ -1,5 +1,6 @@
 #include "ecs_addons/internal_ecs_addons.h"
 #include "colossus/resource_manager/resource_manager.h"
+#include "colossus/engine/engine.h"
 
 static void calculateDeltaTimeSystem(ECS *ecs)
 {
@@ -18,7 +19,7 @@ static void calculateDeltaTimeSystem(ECS *ecs)
     delta_time = (current_time - last_time);
     last_time = current_time;
 
-    resourceSet("delta_time", delta_time);
+    global.delta_time = delta_time;
 }
 
 I32 COMP_TRANSFORM = -1;

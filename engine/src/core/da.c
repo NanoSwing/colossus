@@ -1,15 +1,15 @@
 #include "colossus/core/da.h"
-
 #include "colossus/core/utils.h"
+#include "colossus/core/logger.h"
 
 #include <malloc.h>
 #include <string.h>
 
-static const U32 INITIAL_DA_CAPACITY = 8;
+static const I32 INITIAL_DA_CAPACITY = 8;
 
 typedef struct {
     U64 capacity;
-    U64 count;
+    I64 count;
     U64 size;
 } DAheader;
 #define getHead(da) (DAheader *) (da - sizeof(DAheader));
@@ -34,11 +34,11 @@ void _daDestroy(void **da)
     *da = NULL;
 }
 
-void *_daPushAt(void **da, U32 index, void *data)
+void *_daPushAt(void **da, I32 index, void *data)
 {
     DAheader *head = getHead(*da);
     // Resize the array when full
-    if (head->count == head->capacity) {
+    if (head->count == (I64) head->capacity) {
         head->capacity *= 2;
         head = realloc(head, head->capacity * head->size + sizeof(DAheader));
         *da = ((void *) head) + sizeof(DAheader);
@@ -56,13 +56,18 @@ void *_daPushAt(void **da, U32 index, void *data)
     return (*da + index * head->size);
 }
 
-void _daPopAt(void **da, U32 index, void *output)
+void _daPopAt(void **da, I32 index, void *output)
 {
     DAheader *head = getHead(*da);
 
+    if (head->count == 0) {
+        logWarn("Can't pop from an empty array.");
+        return;
+    }
+
     // Resize the array if neccessary
-    if (head->count == head->capacity / 2) {
-        head->capacity *= 2;
+    if (head->count == (I64) head->capacity / 2 && head->capacity != 8) {
+        head->capacity /= 2;
         head = realloc(head, head->capacity * head->size + sizeof(DAheader));
         *da = head + sizeof(DAheader);
     }
@@ -74,13 +79,12 @@ void _daPopAt(void **da, U32 index, void *output)
         memcpy(output, *da + index * head->size, head->size);
     }
 
-
-    memcpy(*da + index * head->size, *da + (index + 1) * head->size, head->count - index);
+    memcpy(*da + index * head->size, *da + (index + 1) * head->size, (head->count - index) * head->size);
 
     head->count--;
 }
 
-U64 daCount(const void *da)
+I64 daCount(const void *da)
 {
     DAheader *head = getHead(da);
 
