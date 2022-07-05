@@ -6,13 +6,13 @@
         {
             "label": "Build (Debug)",
             "type": "shell",
-            "command": "sh build_all.sh debug",
+            "command": "make debug",
             "group": "build"
         },
         {
             "label": "Clean",
             "type": "shell",
-            "command": "sh clean_all.sh",
+            "command": "make clean",
             "group": "none"
         }
     ]

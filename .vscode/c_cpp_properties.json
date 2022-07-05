@@ -3,12 +3,11 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/testbed/src",
-                "${workspaceFolder}/engine/src",
-                "${workspaceFolder}/engine/include",
-                "${workspaceFolder}/engine/libs/glad/include",
-                "${workspaceFolder}/engine/libs/glfw/include",
-                "${workspaceFolder}/engine/libs/stb"
+                "${workspaceFolder}/src",
+                "${workspaceFolder}/include",
+                "${workspaceFolder}/libs/glad/include",
+                "${workspaceFolder}/libs/glfw/include",
+                "${workspaceFolder}/libs/stb"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

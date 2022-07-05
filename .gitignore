@@ -57,5 +57,4 @@ dkms.conf
 !.vscode/settings.json
 !.vscode/tasks.json
 
-engine/bin/
-testbed/bin/testbed
+bin/

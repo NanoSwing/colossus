@@ -8,8 +8,8 @@
             "name": "Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/testbed/bin/testbed",
-            "cwd": "${workspaceFolder}/testbed/bin",
+            "program": "${workspaceFolder}/bin/test",
+            "cwd": "${workspaceFolder}/bin",
             "stopAtEntry": false,
             "linux": {
                 "MIMode": "gdb",
