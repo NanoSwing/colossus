@@ -18,4 +18,4 @@ $ ./build_all.sh
 ```
 
 # Dependencies
-[GLFW](https://github.com/glfw/glfw) and [glad](https://github.com/Dav1dde/glad) are used for graphics. Both libraries are compiled into the Colossus library.
+[GLFW](https://github.com/glfw/glfw), [glad](https://github.com/Dav1dde/glad) and some [stb](https://github.com/nothings/stb) headers are used for graphics. Both libraries are compiled into the Colossus library.

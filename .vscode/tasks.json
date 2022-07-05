@@ -6,7 +6,7 @@
         {
             "label": "Build (Debug)",
             "type": "shell",
-            "command": "sh build_all.sh",
+            "command": "sh build_all.sh debug",
             "group": "build"
         },
         {
