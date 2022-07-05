@@ -129,7 +129,7 @@ I32 ecsRun(ECS *ecs, I32 system_group_id)
 
 /*
  * Just return the next entity.
- * TODO: Update with deleted entities.
+ * TODO: Update with deleted entities.x
  */
 I32 internalEcsGetEntityID(ECS *ecs)
 {
@@ -139,7 +139,7 @@ I32 internalEcsGetEntityID(ECS *ecs)
     }
 
     I32 ent;
-    daPop(ecs->available_entities, &ent);
+    daPopAt(ecs->available_entities, 0, &ent);
 
     return ent;
 }

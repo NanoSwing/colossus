@@ -204,5 +204,5 @@ void drawLinePoints(Vec2 start, Vec2 end, F32 thickness, Vec4 color)
 
 void drawLineLength(Vec2 start, F32 length, F32 angle, F32 thickness, Vec4 color)
 {
-    drawLine(start, vec2Rot(vec2(0, length), angle), thickness, color);
+    drawLine(start, vec2Add(vec2Rot(vec2(0, length), angle), start), thickness, color);
 }

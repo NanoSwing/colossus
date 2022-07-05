@@ -2,6 +2,7 @@
 #include "colossus/resource_manager/resource_manager.h"
 #include "colossus/ecs_addons/core_ecs.h"
 #include "colossus/ecs_addons/graphics_ecs.h"
+#include "graphics/internal_graphics.h"
 
 ColossusGlobal global = {0};
 
@@ -23,9 +24,16 @@ void colossusSetup(ECS *ecs)
 void colossusStart(ECS *ecs)
 {
     while (graphicsRunning()) {
+        graphicsLoopBegin();
+        beginBatch();
+
         ecsRun(ecs, SYS_PRE_UPDATE);
         ecsRun(ecs, SYS_UPDATE);
         ecsRun(ecs, SYS_LATE_UPDATE);
+        
+        endBatch();
+        flushBatch();
+        graphicsLoopEnd();
     }
 }
 

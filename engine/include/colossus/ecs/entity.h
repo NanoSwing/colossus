@@ -44,7 +44,11 @@ extern void entityDestroy(Entity entity);
  * entity - Entity.
  * component_id - ID of component.
  */
-extern void entityAddComponent(Entity entity, I32 component_id);
+extern void _entityAddComponent(Entity entity, I32 component_id, const void *config);
+#define entityAddComponent(entity, component_id, config) ({ \
+    typeof(config) __temp_config = config; \
+    _entityAddComponent(entity, component_id, &__temp_config); \
+})
 /*
  * Remove a component from an entity.
  *

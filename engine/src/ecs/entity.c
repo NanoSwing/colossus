@@ -51,7 +51,7 @@ void entityDestroy(Entity entity)
  * Remove previous component data.
  * Add entity to component entities array.
  */
-void entityAddComponent(Entity entity, I32 component_id)
+void _entityAddComponent(Entity entity, I32 component_id, const void *config)
 {
     if (checkNullEntity(entity)) {
         return;
@@ -59,7 +59,11 @@ void entityAddComponent(Entity entity, I32 component_id)
 
     const ECS *ecs = entity.ecs;
     ecs->entity_component_table[entity.id + component_id * ecs->max_entity_count] = true;
-    memset(ecs->components[component_id].storage + entity.id * ecs->components[component_id].size, 0, ecs->components[component_id].size);
+    if (config == NULL) {
+        memset(ecs->components[component_id].storage + entity.id * ecs->components[component_id].size, 0, ecs->components[component_id].size);
+    } else {
+        memcpy(ecs->components[component_id].storage + entity.id * ecs->components[component_id].size, config, ecs->components[component_id].size);
+    }
     daPush(ecs->components[component_id].entities, entity);
 }
 
@@ -92,7 +96,7 @@ void entityRemoveComponent(Entity entity, I32 component_id)
 B8 entityHasComponent(Entity entity, I32 component_id)
 {
     if (checkNullEntity(entity)) {
-        return;
+        return false;
     }
 
     return entity.ecs->entity_component_table[entity.id + component_id * entity.ecs->max_entity_count];
@@ -105,7 +109,7 @@ B8 entityHasComponent(Entity entity, I32 component_id)
 void *entityGetComponent(Entity entity, I32 component_id)
 {
     if (checkNullEntity(entity)) {
-        return;
+        return NULL;
     }
     
     if (!entityHasComponent(entity, component_id)) {

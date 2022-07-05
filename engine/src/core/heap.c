@@ -1,5 +1,6 @@
 #include "colossus/core/heap.h"
 #include "colossus/core/da.h"
+#include "colossus/core/logger.h"
 
 #include <stddef.h>
 #include <stdlib.h>
@@ -9,12 +10,14 @@ struct Heap {
     void *available;
     void *used;
     U64 size;
+    B8 reuse;
 };
 
-Heap *heapCreate(U64 size, I32 count, void *filler)
+Heap *heapCreate(U64 size, I32 count, void *filler, B8 resue)
 {
     Heap *heap = malloc(sizeof(Heap));
     heap->size = size;
+    heap->reuse = resue;
     heap->available = daCreate(size);
     for (I32 i = 0; i < count; i++) {
         _daPushAt(&heap->available, daCount(heap->available), filler + i * size);
@@ -27,7 +30,12 @@ Heap *heapCreate(U64 size, I32 count, void *filler)
 void heapGet(Heap *heap, void *output)
 {
     if (daCount(heap->available) == 0) {
-        daPopAt(heap->used, 0, output);
+        if (heap->reuse) {
+            daPopAt(heap->used, 0, output);
+        } else {
+            logWarn("Heap is empty.");
+            return;
+        }
     } else {
         daPopAt(heap->available, 0, output);
     }

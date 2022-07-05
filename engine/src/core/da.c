@@ -69,7 +69,7 @@ void _daPopAt(void **da, I32 index, void *output)
     if (head->count == (I64) head->capacity / 2 && head->capacity != 8) {
         head->capacity /= 2;
         head = realloc(head, head->capacity * head->size + sizeof(DAheader));
-        *da = head + sizeof(DAheader);
+        *da = ((void *) head) + sizeof(DAheader);
     }
     
     clamp(index, 0, head->count);

@@ -70,6 +70,7 @@ void rotate(ECS *ecs)
         I32 e = ent.id;
 
         transforms[e].rotation += rotators[e].speed * global.delta_time;
+        // drawLineLength(transforms[e].position, 0.5f, transforms[e].rotation, 0.05f, vec4(hexRGBA_1(0xFFFFFFFF)));
     }
 }
 
@@ -86,7 +87,7 @@ I32 main(void)
 
     ColossusConfig c_config = {
         .graphics_config = g_config,
-        .max_entities = 8
+        .max_entities = 1024
     };
 
     ECS *ecs;
@@ -104,10 +105,10 @@ I32 main(void)
     Texture sheet = textureLoad("assets/textures/rainbow_spritesheet.png", MIN_MAG_NEAREST);
 
     Entity *entity_pool = daCreate(sizeof(Entity));
-    for (I32 i = 0; i < 8; i++) {
+    for (I32 i = 0; i < 64; i++) {
         daPush(entity_pool, ecsCreateEntity(ecs));
     }
-    Heap *tile_heap = heapCreate(sizeof(Entity), 8, entity_pool);
+    Heap *tile_heap = heapCreate(sizeof(Entity), 64, entity_pool, false);
     daDestroy(entity_pool);
 
     for (F32 y = -4.0f; y < 4.0f; y += 1.0f) {
@@ -116,23 +117,11 @@ I32 main(void)
             heapGet(tile_heap, &test);
             entityDestroy(test);
             
-            entityAddComponent(test, COMP_TRANSFORM);
-            entityAddComponent(test, COMP_SPRITE_RENDERER);
-            entityAddComponent(test, COMP_ANIMATION);
-            entityAddComponent(test, COMP_ANIMATION_CONTROLLER);
-            entityAddComponent(test, COMP_ROTATOR);
-            Transform *trans = entityGetComponent(test, COMP_TRANSFORM);
-            trans->position = vec2(x + 0.5f, y + 0.5f);
-            trans->scale = vec2s(0.9f);
-            trans->rotation = 0.0f;
-            SpriteRenderer *sr = entityGetComponent(test, COMP_SPRITE_RENDERER);
-            sr->texture = sheet;
-            sr->color = vec4s(1.0f);
-            Animation *anim = entityGetComponent(test, COMP_ANIMATION);
-            anim->frame = (I32) (x + y) % 8;
-            anim->frame_count = 8;
-            Rotator *rot = entityGetComponent(test, COMP_ROTATOR);
-            rot->speed = (x + y) * 5.0f;
+            entityAddComponent(test, COMP_TRANSFORM, ((Transform) {.position = vec2(x + 0.5f, y + 0.5f), .rotation = 0.0f, .scale = vec2s(0.9f)}));
+            entityAddComponent(test, COMP_SPRITE_RENDERER, ((SpriteRenderer) {.texture = sheet, .color = vec4s(1.0f)}));
+            entityAddComponent(test, COMP_ANIMATION, ((Animation) {.frame = (I32) (x + y) % 8, .frame_count = 8}));
+            entityAddComponent(test, COMP_ANIMATION_CONTROLLER, NULL);
+            entityAddComponent(test, COMP_ROTATOR, ((Rotator) {.speed = (x + y) * 5.0f}));
         }
     }
 

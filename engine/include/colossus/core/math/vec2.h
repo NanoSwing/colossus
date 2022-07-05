@@ -25,6 +25,14 @@ static inline Vec2 vec2SubS(Vec2 a, F32 scaler) { return vec2(a.x - scaler, a.y 
 static inline F32 vec2Mag(Vec2 a) { return sqrt(pow(a.x, 2) + pow(a.y,2 )); }
 static inline Vec2 vec2Normalize(Vec2 a) { return vec2DivS(a, vec2Mag(a)); }
 
+/*
+ * Rotates a vector clockwise.
+ *
+ * a - Vector.
+ * degrees - Angle.
+ * 
+ * Returns a vector rotated by degrees.
+ */
 static inline Vec2 vec2Rot(Vec2 a, F32 degrees)
 {
     if (degrees == 0) {

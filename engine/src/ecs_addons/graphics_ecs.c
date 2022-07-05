@@ -6,8 +6,6 @@ I32 COMP_ANIMATION = -1;
 
 static void renderingSystem(ECS *ecs)
 {
-    graphicsLoopBegin();
-
     const Component *sprite_renderer_component = ecsGetComponent(ecs, COMP_SPRITE_RENDERER);
     SpriteRenderer *sr = sprite_renderer_component->storage;
     Transform *transforms = ecsGetComponent(ecs, COMP_TRANSFORM)->storage;
@@ -33,10 +31,6 @@ static void renderingSystem(ECS *ecs)
 
         drawQuad(transforms[e].position, transforms[e].scale, transforms[e].rotation, sr[e].color, sr[e].texture, frame_count, frame);
     }
-    endBatch();
-    flushBatch();
-
-    graphicsLoopEnd();
 }
 
 void ecsAddonGraphics(ECS *ecs, U32 system_group)
