@@ -10,14 +10,23 @@
 typedef I32 Shader;
 
 /*
- * Creates a shader.
+ * Creates a shader from files.
  *
  * vertex_path - Path to vertex shader.
  * fragment_path - Path to fragment shader.
  * 
  * Returns shader ID if successful, returns -1 if not.
  */
-extern Shader shaderCreate(const char *vertex_path, const char *fragment_path);
+extern Shader shaderCreateFiles(const char *vertex_path, const char *fragment_path);
+/*
+ * Creates a shader from strings.
+ *
+ * vertex_path - Vertex shader source code.
+ * fragment_path - Fragment shader source code.
+ * 
+ * Returns shader ID if successful, returns -1 if not.
+ */
+extern Shader shaderCreateStrings(const char *vertex_source, const char *fragment_source);
 /*
  * Wrapper for OpenGL glDestroyProgram().
  *

@@ -32,6 +32,7 @@ void colossusStart(ECS *ecs)
         ecsRun(ecs, SYS_LATE_UPDATE);
         
         endBatch();
+
         flushBatch();
         graphicsLoopEnd();
     }

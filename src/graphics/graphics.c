@@ -29,7 +29,9 @@ void graphicsInit(GraphicsConfig config)
         logFatal("Window creation failed!");
     }
     glfwMakeContextCurrent(g_context.window);
+    // Add callbacks
     glfwSetFramebufferSizeCallback(g_context.window, framebufferSizeCallback);
+    glfwSetKeyCallback(g_context.window, keyCallback);
     // Turn off fps limit / vsync
     glfwSwapInterval(0);
     
@@ -44,7 +46,7 @@ void graphicsInit(GraphicsConfig config)
     daPush(quad_layout, ((Layout) {.size = 4, offsetof(Vertex, color)}));
     daPush(quad_layout, ((Layout) {.size = 1, offsetof(Vertex, texture_id)}));
     daPush(quad_layout, ((Layout) {.size = 2, offsetof(Vertex, texture_coords)}));
-    Shader shader = shaderCreate("assets/shaders/quad.vert", "assets/shaders/quad.frag");
+    Shader shader = shaderCreateFiles("colossus/assets/shaders/quad.vert", "colossus/assets/shaders/quad.frag");
     g_context.quad_batcher = batcherCreate(1024, sizeof(Vertex), quad_layout, &g_context.projection, shader);
     daDestroy(quad_layout);
 
@@ -52,7 +54,7 @@ void graphicsInit(GraphicsConfig config)
     Layout *line_layout = daCreate(sizeof(Layout));
     daPush(line_layout, ((Layout) {.size = 2, offsetof(LineVertex, position)}));
     daPush(line_layout, ((Layout) {.size = 4, offsetof(LineVertex, color)}));
-    Shader line_shader = shaderCreate("assets/shaders/line.vert", "assets/shaders/line.frag");
+    Shader line_shader = shaderCreateFiles("colossus/assets/shaders/line.vert", "colossus/assets/shaders/line.frag");
     g_context.line_batcher = batcherCreate(1024, sizeof(LineVertex), line_layout, &g_context.projection, line_shader);
     daDestroy(line_layout);
 

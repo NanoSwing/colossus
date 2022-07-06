@@ -11,7 +11,6 @@ static void renderingSystem(ECS *ecs)
     Transform *transforms = ecsGetComponent(ecs, COMP_TRANSFORM)->storage;
     Animation *animations = ecsGetComponent(ecs, COMP_ANIMATION)->storage;
 
-    beginBatch();
     for (U32 i = 0; i < daCount(sprite_renderer_component->entities); i++) {
         // Does entity have a transform?
         Entity ent = sprite_renderer_component->entities[i];

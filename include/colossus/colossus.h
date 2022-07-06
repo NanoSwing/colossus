@@ -17,5 +17,6 @@
 
 #include "colossus/graphics/graphics.h"
 #include "colossus/graphics/texture.h"
+#include "colossus/graphics/input.h"
 
 #include "colossus/resource_manager/resource_manager.h"

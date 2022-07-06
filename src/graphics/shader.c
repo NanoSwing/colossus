@@ -44,16 +44,25 @@ static char *readFile(const char *path)
  * Create program.
  * Link program with vertex and fragment shaders.
  */
-Shader shaderCreate(const char *vertex_path, const char *fragment_path)
+Shader shaderCreateFiles(const char *vertex_path, const char *fragment_path)
+{
+    char *vertex_source = readFile(vertex_path);
+    char *fragment_source = readFile(fragment_path);
+    Shader shader = shaderCreateStrings(vertex_source, fragment_source);
+    free(vertex_source);
+    free(fragment_source);
+
+    return shader;
+}
+
+Shader shaderCreateStrings(const char *vertex_source, const char *fragment_source)
 {
     // Error handling
     I32 success;
     char info_log[512];
 
     U32 vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    const char *vertex_source = readFile(vertex_path);
     glShaderSource(vertex_shader, 1, &vertex_source, NULL);
-    free((char *) vertex_source);
     glCompileShader(vertex_shader);
     glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
     if (!success) {
@@ -63,9 +72,7 @@ Shader shaderCreate(const char *vertex_path, const char *fragment_path)
     }
 
     U32 fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    const char *fragment_source = readFile(fragment_path);
     glShaderSource(fragment_shader, 1, &fragment_source, NULL);
-    free((char *) fragment_source);
     glCompileShader(fragment_shader);
     glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
     if (!success) {

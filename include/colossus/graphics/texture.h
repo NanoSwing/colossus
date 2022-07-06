@@ -2,6 +2,8 @@
 
 #include "colossus/core/defs.h"
 
+#define NULL_TEXTURE (Texture) {.width = -1, .height = -1, .id = 0}
+
 /*
  * Describes how a texture should be scaled.
  */
