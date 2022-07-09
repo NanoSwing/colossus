@@ -1,6 +1,7 @@
 #include "engine/internal_engine.h"
 #include "colossus/ecs_addons/core_ecs.h"
 #include "colossus/ecs_addons/graphics_ecs.h"
+#include "colossus/resource_manager/resource_manager.h"
 
 #include <stdlib.h>
 
@@ -8,6 +9,8 @@ GlobalState global = {0};
 
 Engine *engineCreate(I32 width, I32 height, const char *title, B8 resizable, I32 max_entity_count, ECS **ecs)
 {
+    resourceManagerInit();
+
     Engine *engine = malloc(sizeof(Engine));
 
     engine->ecs = ecsCreate(max_entity_count, SYS_GROUP_COUNT);
@@ -41,6 +44,8 @@ void engineStart(Engine *engine) { graphicsLoop(engine->graphics, loop, engine);
 
 void engineDestroy(Engine **engine)
 {
+    resourceManagerTerminate();
+    
     ecsDestroy(&(*engine)->ecs);
     pipelineDestroy((*engine)->pipeline);
     graphicsTerminate((*engine)->graphics);
