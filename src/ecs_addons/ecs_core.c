@@ -1,4 +1,4 @@
-#include "ecs_addons/internal_ecs_addons.h"
+#include "colossus/ecs_addons/core_ecs.h"
 #include "colossus/resource_manager/resource_manager.h"
 #include "colossus/engine/engine.h"
 

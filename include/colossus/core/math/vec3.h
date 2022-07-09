@@ -23,6 +23,6 @@ static inline Vec3 vec3AddS(Vec3 a, F32 scaler) { return vec3(a.x + scaler, a.y 
 static inline Vec3 vec3SubS(Vec3 a, F32 scaler) { return vec3(a.x - scaler, a.y - scaler, a.z - scaler); }
 
 static inline F32 vec3Mag(Vec3 a) { return sqrt(pow(a.x, 2) + pow(a.y, 2) + pow(a.z, 2)); }
-static inline Vec3 vec3Normalize(Vec3 a) { return vec3DivS(a, vec3Mag(a)); }
+static inline Vec3 vec3Normalize(Vec3 a) { return vec3MulS(a, 1.0f / vec3Mag(a)); }
 
 #define vec3Args(vec) vec.x, vec.y, vec.z

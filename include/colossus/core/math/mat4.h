@@ -43,9 +43,9 @@ static inline Mat4 mat4OrthoProjection(F32 left, F32 right, F32 top, F32 bottom,
     // Stolen from: http://learnwebgl.brown37.net/08_projections/projections_ortho.html
     Mat4 proj = mat4Identity;
 
-    F32 mid_x = (left + right) / 2.0f;
-    F32 mid_y = (bottom + top) / 2.0f;
-    F32 mid_z = (-near + -far) / 2.0f;
+    F32 mid_x = (left + right) * 0.5f;
+    F32 mid_y = (bottom + top) * 0.5f;
+    F32 mid_z = (-near + -far) * 0.5f;
     proj.a.w = -mid_x;
     proj.b.w = -mid_y;
     proj.c.w = -mid_z;

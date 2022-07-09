@@ -1,47 +1,49 @@
-#include "colossus/engine/engine.h"
-#include "colossus/resource_manager/resource_manager.h"
+#include "engine/internal_engine.h"
 #include "colossus/ecs_addons/core_ecs.h"
 #include "colossus/ecs_addons/graphics_ecs.h"
-#include "graphics/internal_graphics.h"
 
-ColossusGlobal global = {0};
+#include <stdlib.h>
 
-void colossusInit(ColossusConfig config, ECS **ecs)
+GlobalState global = {0};
+
+Engine *engineCreate(I32 width, I32 height, const char *title, B8 resizable, I32 max_entity_count, ECS **ecs)
 {
-    graphicsInit(config.graphics_config);
-    resourceManagerInit();
+    Engine *engine = malloc(sizeof(Engine));
 
-    *ecs = ecsCreate(config.max_entities, SYS_COUNT);
-    ecsAddonCore(*ecs, SYS_UPDATE);
-    ecsAddonGraphics(*ecs, SYS_UPDATE);
+    engine->ecs = ecsCreate(max_entity_count, SYS_GROUP_COUNT);
+    engine->graphics = graphicsInit(width, height, title, resizable);
+    engine->pipeline = pipelineCreate(engine->graphics);
+
+    *ecs = engine->ecs;
+
+    return engine;
 }
 
-void colossusSetup(ECS *ecs)
+void engineSetup(Engine *engine)
 {
-    ecsBake(ecs);
+    ecsAddonCore(engine->ecs, SYS_UPDATE);
+    ecsAddonGraphics(engine->ecs, SYS_UPDATE);
+
+    ecsBake(engine->ecs);
 }
 
-void colossusStart(ECS *ecs)
+static void loop(void *args)
 {
-    while (graphicsRunning()) {
-        graphicsLoopBegin();
-        beginBatch();
+    Engine *engine = args;
 
-        ecsRun(ecs, SYS_PRE_UPDATE);
-        ecsRun(ecs, SYS_UPDATE);
-        ecsRun(ecs, SYS_LATE_UPDATE);
-        
-        endBatch();
+    ecsRun(engine->ecs, SYS_PRE_UPDATE);
+    ecsRun(engine->ecs, SYS_UPDATE);
+    ecsRun(engine->ecs, SYS_LATE_UPDATE);
 
-        flushBatch();
-        graphicsLoopEnd();
-    }
+    pipelineRender(engine->pipeline, engine->ecs);
 }
+void engineStart(Engine *engine) { graphicsLoop(engine->graphics, loop, engine); }
 
-void colossusTerminate(ECS **ecs)
+void engineDestroy(Engine **engine)
 {
-    graphicsTerminate();
-    resourceManagerTerminate();
-
-    ecsDestroy(ecs);
+    ecsDestroy(&(*engine)->ecs);
+    pipelineDestroy((*engine)->pipeline);
+    graphicsTerminate((*engine)->graphics);
+    free(*engine);
+    *engine = NULL;
 }

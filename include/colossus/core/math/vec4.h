@@ -23,6 +23,6 @@ static inline Vec4 vec4AddS(Vec4 a, F32 scaler) { return vec4(a.x + scaler, a.y 
 static inline Vec4 vec4SubS(Vec4 a, F32 scaler) { return vec4(a.x - scaler, a.y - scaler, a.z - scaler, a.w - scaler); }
 
 static inline F32 vec4Mag(Vec4 a) { return sqrt(pow(a.x, 2) + pow(a.y, 2) + pow(a.z, 2) + pow(a.w, 2)); }
-static inline Vec4 vec4Normalize(Vec4 a) { return vec4DivS(a, vec4Mag(a)); }
+static inline Vec4 vec4Normalize(Vec4 a) { return vec4MulS(a, 1.0f / vec4Mag(a)); }
 
 #define vec4Args(vec) vec.x, vec.y, vec.z, vec.w

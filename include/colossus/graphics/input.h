@@ -2,6 +2,15 @@
 
 #include "colossus/core/defs.h"
 
+typedef struct {
+    B8 pressed;
+    B8 first;
+} Key;
+
+extern Key keyboard[348];
+
+
+
 // Stolen from GLFW
 
 // Key code used for input.
@@ -133,8 +142,8 @@ typedef enum {
 
 extern B8 keyDown(KeyCode key_code);
 extern B8 keyHold(KeyCode key_code);
-extern B8 keyRelease(KeyCode key_code);
+extern B8 keyUp(KeyCode key_code);
 
 extern B8 getMouseButtonDown(KeyCode mouse_button);
 extern B8 getMouseButton(KeyCode mouse_button);
-extern B8 getMouseButtonRelease(KeyCode mouse_button);
+extern B8 getMouseButtonUp(KeyCode mouse_button);

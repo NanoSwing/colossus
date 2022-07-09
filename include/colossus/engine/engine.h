@@ -1,18 +1,15 @@
 #pragma once
 
-#include "colossus/graphics/graphics.h"
+#include "colossus/core/defs.h"
 #include "colossus/ecs/ecs.h"
-
-typedef struct {
-    GraphicsConfig graphics_config;
-    I32 max_entities;
-} ColossusConfig;
 
 typedef struct {
     F32 delta_time;
     F32 fixed_delta_time;
-} ColossusGlobal;
-extern ColossusGlobal global;
+} GlobalState;
+extern GlobalState global;
+
+typedef struct Engine Engine;
 
 typedef enum {
     SYS_FIXED_UPDATE,
@@ -20,10 +17,10 @@ typedef enum {
     SYS_UPDATE,
     SYS_LATE_UPDATE,
 
-    SYS_COUNT
+    SYS_GROUP_COUNT
 } SystemGroup;
 
-extern void colossusInit(ColossusConfig config, ECS **ecs);
-extern void colossusSetup(ECS *ecs);
-extern void colossusStart(ECS *ecs);
-extern void colossusTerminate(ECS **ecs);
+extern Engine *engineCreate(I32 width, I32 height, const char *title, B8 resizable, I32 max_entity_count, ECS **ecs);
+extern void engineSetup(Engine *engine);
+extern void engineStart(Engine *engine);
+extern void engineDestroy(Engine **engine);

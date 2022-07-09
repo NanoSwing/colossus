@@ -1,188 +1,57 @@
-#include "graphics/batcher.h"
-#include "colossus/core/da.h"
+#include "colossus/graphics/batcher.h"
 
-#include <stddef.h>
-#include <malloc.h>
-#include <string.h>
+#include <stdlib.h>
 
 #include <glad/glad.h>
 
-/*
- * Configure batcher.
- * Create a white texture to use when rendering blank quads.
- * Configure shader.
- * Generate OpenGL buffer.
- */
-Batcher batcherCreate(U32 max_quads, U64 vertex_size, const Layout *layout, Mat4 *projection, Shader shader)
+Batcher batcherCreate(U64 vertex_size, I32 max_vertex_count, const VertexLayout *layoyt, I32 layout_count, const I32 *indices, I32 index_count)
 {
     Batcher batcher;
-    batcher.max_quads = max_quads;
-    batcher.quad_count = 0;
-    batcher.quad_buffer = malloc(vertex_size * max_quads * 4);
-    batcher.quad_pointer = batcher.quad_buffer;
+
+    batcher.vao = vaoCreate();
+    batcher.vbo = vboCreateDynamic(vertex_size, max_vertex_count);
+    batcher.ebo = eboCreate(indices, index_count);
+
+    vaoAddVBO(batcher.vao, batcher.vbo, vertex_size, layoyt, layout_count);
+    vaoAddEBO(batcher.vao, batcher.ebo);
+
+    batcher.vertex_buffer = malloc(vertex_size * max_vertex_count);
+    batcher.vertex_count = 0;
     batcher.vertex_size = vertex_size;
-    batcher.shader = shader;
-    batcher.projection = projection;
-    // Create a white texture
-    U32 white_texture;
-    glCreateTextures(GL_TEXTURE_2D, 1, &white_texture);
-    glBindTexture(GL_TEXTURE_2D, white_texture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    U32 color = 0xffffffff;
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &color);
-
-    batcher.textures[0] = white_texture;
-    batcher.texture_count = 1;
-    for (U32 i = 1; i < 32; i++) {
-        batcher.textures[i] = 0;
-    }
-
-    glUseProgram(shader);
-    I32 samplers[32] = {0};
-    for (I32 i = 0; i < 32; i++) {
-        samplers[i] = i;
-    }
-    glUniform1iv(glGetUniformLocation(shader, "textures"), 32, samplers);
-
-    // Create vertex array
-    glGenVertexArrays(1, &batcher.vertex_array);
-    glBindVertexArray(batcher.vertex_array);
-
-    // Configure vertex buffer
-    glGenBuffers(1, &batcher.vertex_buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, batcher.vertex_buffer);
-
-    glBufferData(GL_ARRAY_BUFFER, vertex_size * max_quads * 4, NULL, GL_DYNAMIC_DRAW);
-
-    for (U32 i = 0; i < daCount(layout); i++) {
-        glVertexAttribPointer(i, layout[i].size, GL_FLOAT, GL_FALSE, vertex_size, (const void *) layout[i].offset);
-        glEnableVertexAttribArray(i);
-    }
-
-    // Configure element buffer
-    glGenBuffers(1, &batcher.element_buffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, batcher.element_buffer);
-
-    U32 indices[max_quads * 6];
-    U32 offset = 0;
-    for (U32 i = 0; i < max_quads * 6; i += 6) {
-        indices[i + 0] = offset + 0;
-        indices[i + 1] = offset + 1;
-        indices[i + 2] = offset + 2;
-
-        indices[i + 3] = offset + 2;
-        indices[i + 4] = offset + 3;
-        indices[i + 5] = offset + 1;
-
-        offset += 4;
-    }
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    // Unbind everything
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
+    batcher.max_vertex_count = max_vertex_count;
 
     return batcher;
 }
 
-/*
- * Clean up.
- */
-void batcherDestroy(Batcher batcher)
+void batcherDestroy(Batcher *batcher)
 {
-    free(batcher.quad_buffer);
+    vaoDestroy(batcher->vao);
+    vboDestroy(batcher->vbo);
+    eboDestroy(batcher->ebo);
 
-    glDeleteVertexArrays(1, &batcher.vertex_array);
-    glDeleteBuffers(1, &batcher.vertex_buffer);
-    glDeleteBuffers(1, &batcher.element_buffer);
-    shaderDestroy(batcher.shader);
-
-    glDeleteTextures(1, &batcher.textures[0]);
+    free(batcher->vertex_buffer);
+    batcher->vertex_buffer = NULL;
 }
 
-/*
- * Bind all textures.
- * Draw call.
- * Reset batch.
- */
-void batcherFlush(Batcher *batcher)
-{
-    // Bind textures
-    for (U32 i = 0; i < batcher->texture_count; i++) {
-        glBindTextureUnit(i, batcher->textures[i]);
-    }
-
-    // Draw call
-    glUseProgram(batcher->shader);
-    shaderUniformMat4(batcher->shader, "projection", *batcher->projection);
-
-    glBindVertexArray(batcher->vertex_array);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, batcher->element_buffer);
-
-    glDrawElements(GL_TRIANGLES, batcher->quad_count * 6, GL_UNSIGNED_INT, NULL);
-
-    batcher->quad_count = 0;
-    // Set to 1 to not delete blank texture at 0
-    batcher->texture_count = 1;
-}
-
-/*
- * Reset quad_pointer for a new batch.
- */
 void batcherStart(Batcher *batcher)
 {
-    batcher->quad_pointer = batcher->quad_buffer;
+    (void) batcher;
 }
 
-/*
- * Send vertex data to vertex buffer.
- */
-void batcherEnd(Batcher *batcher)
+void batcherStop(Batcher *batcher)
 {
-    // Send vertex data to vertex buffer
-    U64 size = (U8 *) batcher->quad_pointer - (U8 *) batcher->quad_buffer;
-    glBindBuffer(GL_ARRAY_BUFFER, batcher->vertex_buffer);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, size, batcher->quad_buffer);
+    vboSendData(batcher->vbo, batcher->vertex_buffer, batcher->vertex_count * batcher->vertex_size);
 }
 
-/*
- * Setup batching for a new quad.
- */
-void batchQuad(Batcher *batcher, U32 texture_id, U32 *texture_index, void **buffer_pointer)
+void batcherFlush(Batcher *batcher)
 {
-    // No texture
-    if (texture_index != NULL) {
-        if (texture_id == 0) {
-            *texture_index = 0;
-        } else {
-            B8 found = false;
-            for (U32 i = 0; i < batcher->texture_count; i++) {
-                if (texture_id == batcher->textures[i]) {
-                    *texture_index = i;
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                *texture_index = batcher->texture_count;
-                batcher->textures[*texture_index] = texture_id;
-                batcher->texture_count++;
-            }
-        }
-    }
+    vaoBind(batcher->vao);
+    eboBind(batcher->ebo);
 
-    if (batcher->quad_count == batcher->max_quads || batcher->texture_count == 32) {
-        batcherEnd(batcher);
-        batcherFlush(batcher);
-        batcherStart(batcher);
-    }
+    glDrawElements(GL_TRIANGLES, batcher->vertex_count / 4 * 6, GL_UNSIGNED_INT, NULL);
 
-    *buffer_pointer = batcher->quad_pointer;
-    // Increment quad_pointer by 4 vertices.
-    batcher->quad_pointer += batcher->vertex_size * 4;
-    batcher->quad_count++;
+    vaoUnbind();
+    eboUnbind();
+
+    batcher->vertex_count = 0;
 }

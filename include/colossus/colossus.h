@@ -16,7 +16,15 @@
 #include "colossus/engine/engine.h"
 
 #include "colossus/graphics/graphics.h"
-#include "colossus/graphics/texture.h"
 #include "colossus/graphics/input.h"
+#include "colossus/graphics/batcher.h"
+#include "colossus/graphics/textures.h"
+#include "colossus/graphics/shaders.h"
+#include "colossus/graphics/buffers/EBO.h"
+#include "colossus/graphics/buffers/FBO.h"
+#include "colossus/graphics/buffers/VAO.h"
+#include "colossus/graphics/buffers/VBO.h"
+
+#include "colossus/graphics_addons/pipeline.h"
 
 #include "colossus/resource_manager/resource_manager.h"

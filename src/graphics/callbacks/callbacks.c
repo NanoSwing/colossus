@@ -1,11 +1,8 @@
-#include "graphics/callbacks.h"
-#include "graphics/internal_input.h"
+#include "graphics/callbacks/callbacks.h"
+#include "colossus/graphics/input.h"
 
 #include <glad/glad.h>
 
-/*
- * Resize window viewport when window resizes.
- */
 void framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
     (void) window;
