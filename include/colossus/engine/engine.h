@@ -20,7 +20,7 @@ typedef enum {
     SYS_GROUP_COUNT
 } SystemGroup;
 
-extern Engine *engineCreate(I32 width, I32 height, const char *title, B8 resizable, I32 max_entity_count, ECS **ecs);
+extern Engine *engineCreate(I32 width, I32 height, const char *title, B8 resizable, I32 pixels_per_unit, I32 max_entity_count, ECS **ecs);
 extern void engineSetup(Engine *engine);
 extern void engineStart(Engine *engine);
 extern void engineDestroy(Engine **engine);

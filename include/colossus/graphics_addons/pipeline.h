@@ -17,7 +17,7 @@ typedef struct {
 
 typedef struct Pipeline Pipeline;
 
-extern Pipeline *pipelineCreate(Graphics *graphics);
+extern Pipeline *pipelineCreate(Graphics *graphics, I32 pixels_per_unit);
 extern void pipelineDestroy(Pipeline *pipeline);
 
 extern void pipelineRender(Pipeline *pipeline, ECS *ecs);

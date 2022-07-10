@@ -3,6 +3,7 @@
 #include "colossus/ecs_addons/graphics_ecs.h"
 #include "colossus/ecs_addons/core_ecs.h"
 #include "colossus/core/da.h"
+#include "colossus/core/logger.h"
 
 #include <stdlib.h>
 
@@ -14,7 +15,7 @@
 
 Quad draw_grid[100][100] = {0};
 
-Pipeline *pipelineCreate(Graphics *graphics)
+Pipeline *pipelineCreate(Graphics *graphics, I32 pixels_per_unit)
 {
     Pipeline *pl = malloc(sizeof(Pipeline));
 
@@ -41,9 +42,10 @@ Pipeline *pipelineCreate(Graphics *graphics)
 
     pl->batcher = batcherCreate(sizeof(Vertex), MAX_VERTEX_COUNT, layout, sizeof(layout) / sizeof(layout[0]), indices, MAX_INDEX_COUNT);
     
-    I32 samplers[32];
+    I32 samplers[32] = {0};
     for (I32 i = 0; i < 32; i++) { samplers[i] = i; }
     pl->shader = shaderCreate("colossus/assets/shaders/default.vert", "colossus/assets/shaders/default.frag");
+    shaderUse(pl->shader);
     shaderUniformIv(pl->shader, "textures", 32, samplers);
 
     I32 white = 0xFFFFFFFF;
@@ -51,6 +53,7 @@ Pipeline *pipelineCreate(Graphics *graphics)
     pl->texture_count = 1;
 
     pl->graphics = graphics;
+    pl->pixels_per_unit = pixels_per_unit;
 
     {
         typedef struct {
@@ -105,7 +108,14 @@ void pipelineRender(Pipeline *pipeline, ECS *ecs)
     I32 width = pipeline->graphics->width;
     I32 height = pipeline->graphics->height;
 
-    Mat4 proj = mat4OrthoProjection(-(F32) width / 2.0f, (F32) width / 2.0f, (F32) height / 2.0f, -(F32) height / 2.0f, -1, 1);
+    // Mat4 proj = mat4OrthoProjection(-(F32) width / 2.0f, (F32) width / 2.0f, (F32) height / 2.0f, -(F32) height / 2.0f, -1, 1);
+    Mat4 proj = {
+        {width / 2.0f, 0.0f,          0.0f, 0.0f},
+        {0.0f,         height / 2.0f, 0.0f, 0.0f},
+        {0.0f,         0.0f,          1.0f, 0.0f},
+        {0.0f,         0.0f,          0.0f, 1.0f}
+    };
+    proj = mat4Inverse(proj);
 
     textureResize(pipeline->screen_fbo.color_attachment, width, height, NULL);
 
@@ -119,6 +129,7 @@ void pipelineRender(Pipeline *pipeline, ECS *ecs)
     for (I32 i = 0; i < pipeline->texture_count; i++) {
         textureBindUnit(i, pipeline->textures[i]);
     }
+    pipeline->texture_count = 1;
 
     const Component *comp = ecsGetComponent(ecs, COMP_SPRITE_RENDERER);
     SpriteRenderer *sr = comp->storage;
@@ -158,7 +169,7 @@ void drawQuad(Pipeline *pipeline, Vec2 position, Vec2 size, F32 rotation, Vec4 c
 {
     Batcher *batcher = &pipeline->batcher;
 
-    if (batcher->vertex_count == batcher->max_vertex_count) {
+    if (batcher->vertex_count == batcher->max_vertex_count || pipeline->texture_count == 32) {
         batcherStop(batcher);
         batcherFlush(batcher);
     }
@@ -201,28 +212,17 @@ void drawQuad(Pipeline *pipeline, Vec2 position, Vec2 size, F32 rotation, Vec4 c
         vec2(1.0f, 1.0f)
     };
     
-    F32 scaler = floorf(pipeline->graphics->height / 16.0f);
-
     for (I32 i = 0; i < 4; i++) {
-        Vec2 corrected_size = size;
-        corrected_size = vec2MulS(corrected_size, scaler);
-        corrected_size.x = floorf(corrected_size.x) + 0.5f;
-        corrected_size.y = floorf(corrected_size.y) + 0.5f;
-
-        Vec2 corrected_pos = position;
-        corrected_pos = vec2MulS(corrected_pos, scaler);
-        corrected_pos.x = floorf(corrected_pos.x) + 0.5f;
-        corrected_pos.y = floorf(corrected_pos.y) + 0.5f;
 
         Vec2 vert_pos = pos[i];
-        vert_pos = vec2Mul(vert_pos, corrected_size);
+        vert_pos = vec2Mul(vert_pos, vec2MulS(size, pipeline->pixels_per_unit));
         vert_pos = vec2Rot(vert_pos, rotation);
-        vert_pos = vec2Add(vert_pos, corrected_pos);
+        vert_pos = vec2Add(vert_pos, vec2MulS(position, pipeline->pixels_per_unit));
         buffer[*index].pos = vert_pos;
 
         buffer[*index].uv = uvs[i];
         buffer[*index].color = color;
-        buffer[*index].tex_id = texture_index;
+        buffer[*index].tex_id = (F32) texture_index;
 
         (*index)++;
     }
