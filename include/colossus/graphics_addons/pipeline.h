@@ -22,10 +22,4 @@ extern void pipelineDestroy(Pipeline *pipeline);
 
 extern void pipelineRender(Pipeline *pipeline, ECS *ecs);
 
-extern void drawQuad(Pipeline *pipeline, Vec2 position, Vec2 size, F32 rotation, Vec4 color, Texture texture);
-
-typedef struct {
-    Vec2 pos;
-    Vec4 color;
-} Quad;
-extern Quad draw_grid[100][100];
+extern void drawQuad(Pipeline *pipeline, Vec2 position, Vec2 size, F32 rotation, Vec4 color, Texture texture, I32 frame_count, I32 frame);

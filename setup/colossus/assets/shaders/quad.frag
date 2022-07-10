@@ -1,14 +1,12 @@
 #version 460 core
 out vec4 FragColor;
 
-in vec4 color;
-in float texture_id;
-in vec2 texture_coords;
+in vec2 f_uv;
 
-uniform sampler2D textures[32];
+uniform sampler2D screen_texture;
 
 void main()
 {
-    int index = int(texture_id);
-    FragColor = texture(textures[index], texture_coords) * color;
+    FragColor = texture(screen_texture, f_uv);
+    // FragColor = vec4(f_uv, 0.0, 1.0);
 }

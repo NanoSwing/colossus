@@ -13,8 +13,6 @@
 #define MAX_VERTEX_COUNT MAX_QUAD_COUNT * 4
 #define MAX_INDEX_COUNT MAX_QUAD_COUNT * 6
 
-Quad draw_grid[100][100] = {0};
-
 Pipeline *pipelineCreate(Graphics *graphics, I32 pixels_per_unit)
 {
     Pipeline *pl = malloc(sizeof(Pipeline));
@@ -122,6 +120,8 @@ void pipelineRender(Pipeline *pipeline, ECS *ecs)
     fboBind(pipeline->screen_fbo);
     glClearColor(hexRGBA_1(0x191919ff));
     glClear(GL_COLOR_BUFFER_BIT);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
 
     shaderUse(pipeline->shader);
     shaderUniformMat4(pipeline->shader, "projection", proj);
@@ -141,7 +141,16 @@ void pipelineRender(Pipeline *pipeline, ECS *ecs)
         }
         I32 e = ent.id;
 
-        drawQuad(pipeline, trans[e].position, trans[e].scale, trans[e].rotation, sr[e].color, sr[e].texture);
+        I32 frame_count = 1;
+        I32 frame = 0;
+
+        if (entityHasComponent(ent, COMP_ANIMATION)) {
+            Animation *anim = entityGetComponent(ent, COMP_ANIMATION);
+            frame_count = anim->frame_count;
+            frame = anim->frame;
+        }
+
+        drawQuad(pipeline, trans[e].position, trans[e].scale, trans[e].rotation, sr[e].color, sr[e].texture, frame_count, frame);
     }
 
     batcherStop(&pipeline->batcher);
@@ -165,7 +174,7 @@ void pipelineRender(Pipeline *pipeline, ECS *ecs)
     eboUnbind();
 }
 
-void drawQuad(Pipeline *pipeline, Vec2 position, Vec2 size, F32 rotation, Vec4 color, Texture texture)
+void drawQuad(Pipeline *pipeline, Vec2 position, Vec2 size, F32 rotation, Vec4 color, Texture texture, I32 frame_count, I32 frame)
 {
     Batcher *batcher = &pipeline->batcher;
 
@@ -205,11 +214,12 @@ void drawQuad(Pipeline *pipeline, Vec2 position, Vec2 size, F32 rotation, Vec4 c
         vec2( 0.5f,  0.5f)
     };
 
+    I32 frame_height = texture.height / frame_count;
     const Vec2 uvs[4] = {
-        vec2(0.0f, 0.0f),
-        vec2(1.0f, 0.0f),
-        vec2(0.0f, 1.0f),
-        vec2(1.0f, 1.0f)
+        vec2(0.0f, (F32) ((frame_count - frame - 1) * frame_height) / (F32) texture.height),
+        vec2(1.0f, (F32) ((frame_count - frame - 1) * frame_height) / (F32) texture.height),
+        vec2(0.0f, (F32) ((frame_count - frame) * frame_height) / (F32) texture.height),
+        vec2(1.0f, (F32) ((frame_count - frame) * frame_height) / (F32) texture.height)
     };
     
     for (I32 i = 0; i < 4; i++) {

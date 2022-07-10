@@ -11,4 +11,10 @@ typedef struct {
 } SpriteRenderer;
 extern I32 COMP_SPRITE_RENDERER;
 
+typedef struct {
+    I32 frame_count;
+    I32 frame;
+} Animation;
+extern I32 COMP_ANIMATION;
+
 extern void ecsAddonGraphics(ECS *ecs, U32 system_group);
