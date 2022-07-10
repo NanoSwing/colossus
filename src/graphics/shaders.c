@@ -1,37 +1,36 @@
 #include "colossus/graphics/shaders.h"
+#include "colossus/core/logger.h"
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <glad/glad.h>
 
 Shader shaderCreateStr(const char *vertex_source, const char *fragment_source)
 {
-    int success;
+    I32 success;
     char info_log[512];
 
     // Vertex shader
-    unsigned int vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+    U32 vertex_shader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex_shader, 1, &vertex_source, NULL);
     glCompileShader(vertex_shader);
     glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
     // Error handling
     if (!success) {
         glGetShaderInfoLog(vertex_shader, 512, NULL, info_log);
-        printf("Vertex shader compilation error: '%s'\n", info_log);
+        logWarn("Vertex shader compilation error: '%s'", info_log);
     }
 
     // Fragment shader
-    unsigned int fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+    U32 fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment_shader, 1, &fragment_source, NULL);
     glCompileShader(fragment_shader);
     // Error handling
     glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(fragment_shader, 512, NULL, info_log);
-        printf("Fragment shader compilation error: '%s'\n", info_log);
+        logWarn("Fragment shader compilation error: '%s'\n", info_log);
     }
 
     // Program
@@ -43,7 +42,7 @@ Shader shaderCreateStr(const char *vertex_source, const char *fragment_source)
     glGetProgramiv(program, GL_LINK_STATUS, &success);
     if (!success) {
         glGetProgramInfoLog(program, 512, NULL, info_log);
-        printf("Shader linking error: '%s'\n", info_log);
+        logWarn("Shader linking error: '%s'", info_log);
     }
 
     return program;
@@ -54,13 +53,13 @@ static char *readFile(const char *path)
     // Open file
     FILE *fp = fopen(path, "rb");
     if (fp == NULL) {
-        printf("Unable to open file: '%s'\n", path);
+        logWarn("Unable to open file: '%s'\n", path);
         return NULL;
     }
 
     // Get length
     fseek(fp, 0, SEEK_END);
-    int length = ftell(fp);
+    I32 length = ftell(fp);
     fseek(fp, 0, SEEK_SET);
 
     // Read

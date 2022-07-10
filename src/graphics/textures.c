@@ -1,4 +1,5 @@
 #include "colossus/graphics/textures.h"
+#include "colossus/core/logger.h"
 
 #include <glad/glad.h>
 #define STB_IMAGE_IMPLEMENTATION
@@ -12,7 +13,7 @@ Texture textureFromFile(const char *path, TextureScaling scaling)
     stbi_set_flip_vertically_on_load_thread(true);
     unsigned char *data = stbi_load(path, &width, &height, &channels, 0);
     if (!data) {
-        printf("Unable to load texutre: '%s'\n", path);
+        logWarn("Unable to load texutre: '%s'", path);
         return NULL_TEXTURE;
     }
 
@@ -30,7 +31,7 @@ Texture textureBlank(I32 width, I32 height, TextureScaling scaling, I8 channels,
 {
     I32 format = channels == 3 ? GL_RGB : channels == 4 ? GL_RGBA : -1;
     if (format == -1) {
-        printf("Unsupported channel count.\n");
+        logWarn("Unsupported channel count.");
         return NULL_TEXTURE;
     }
     I32 scaler = scaling == SCALE_LINEAR ? GL_LINEAR : GL_NEAREST;

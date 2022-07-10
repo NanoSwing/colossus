@@ -46,7 +46,7 @@ extern void entityDestroy(Entity entity);
  */
 extern void _entityAddComponent(Entity entity, I32 component_id, const void *config);
 #define entityAddComponent(entity, component_id, config) ({ \
-    typeof(config) __temp_config = config; \
+    __typeof(config) __temp_config = config; \
     _entityAddComponent(entity, component_id, &__temp_config); \
 })
 /*
