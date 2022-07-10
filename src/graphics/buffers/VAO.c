@@ -40,12 +40,3 @@ void vaoAddVBO(VAO vao, VBO vbo, U64 vertex_size, const VertexLayout *layout, I3
     vboUnbind();
     vaoUnbind();
 }
-
-void vaoAddEBO(VAO vao, EBO ebo)
-{
-    vaoBind(vao);
-    eboBind(ebo);
-
-    vaoUnbind();
-    eboUnbind();
-}

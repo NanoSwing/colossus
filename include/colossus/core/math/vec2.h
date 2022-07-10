@@ -23,7 +23,14 @@ static inline Vec2 vec2AddS(Vec2 a, F32 scaler) { return vec2(a.x + scaler, a.y 
 static inline Vec2 vec2SubS(Vec2 a, F32 scaler) { return vec2(a.x - scaler, a.y - scaler); }
 
 static inline F32 vec2Mag(Vec2 a) { return sqrt(a.x * a.x + a.y * a.y); }
-static inline Vec2 vec2Normalize(Vec2 a) { return vec2MulS(a, 1.0f / vec2Mag(a)); }
+static inline Vec2 vec2Normalize(Vec2 a)
+{
+    F32 mag = vec2Mag(a);
+    if (mag == 0) {
+        return a;
+    }
+    return vec2MulS(a, 1.0f / mag);
+}
 
 /*
  * Rotates a vector clockwise.

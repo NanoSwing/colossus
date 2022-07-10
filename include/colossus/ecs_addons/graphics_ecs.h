@@ -13,6 +13,8 @@ typedef struct {
     Texture texture;
     /* Color. */
     Vec4 color;
+    /* Z layer specifing what objects should render on top of others. */
+    I32 z_index;
 } SpriteRenderer;
 /*
  * Sprite renderer component ID.

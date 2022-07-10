@@ -4,6 +4,12 @@
 #include <GLFW/glfw3.h>
 
 struct Graphics {
+    /* Window. */
     GLFWwindow *window;
-    I32 width, height;
+    /* Width of window. */
+    I32 width;
+    /* Height of window. */
+    I32 height;
+    /* Camera. */
+    Camera cam;
 };

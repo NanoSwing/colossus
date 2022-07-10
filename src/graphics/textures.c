@@ -10,13 +10,15 @@ Texture textureFromFile(const char *path, TextureScaling scaling)
     Texture texture;
 
     I32 width, height, channels;
-    stbi_set_flip_vertically_on_load_thread(true);
+    // Images are loaded verticaly for some reason so flip it
+    stbi_set_flip_vertically_on_load(true);
     unsigned char *data = stbi_load(path, &width, &height, &channels, 0);
     if (!data) {
         logWarn("Unable to load texutre: '%s'", path);
         return NULL_TEXTURE;
     }
 
+    // Create texture
     texture = textureFromPixels(width, height, scaling, channels, data);
     stbi_image_free(data);
 
@@ -29,13 +31,16 @@ Texture textureFromFile(const char *path, TextureScaling scaling)
 
 Texture textureFromPixels(I32 width, I32 height, TextureScaling scaling, I8 channels, const void *pixels)
 {
+    // Get GL format from channels.
     I32 format = channels == 3 ? GL_RGB : channels == 4 ? GL_RGBA : -1;
     if (format == -1) {
         logWarn("Unsupported channel count.");
         return NULL_TEXTURE;
     }
+    // Get GL scale from TextureScaling enum
     I32 scaler = scaling == SCALE_LINEAR ? GL_LINEAR : GL_NEAREST;
 
+    // Configure texture
     Texture texture;
     texture.width = width;
     texture.height = height;
@@ -45,11 +50,13 @@ Texture textureFromPixels(I32 width, I32 height, TextureScaling scaling, I8 chan
     glGenTextures(1, (U32 *) &texture.id);
     textureBind(texture);
 
+    // Configure texture filtering and clamping
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, scaler);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, scaler);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
+    // Generate texture
     glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, pixels);
 
     textureUnbind();
@@ -67,6 +74,7 @@ void textureResize(Texture *texture, I32 width, I32 height, const void *pixels)
     texture->width = width;
     texture->height = height;
     
+    // Reallocate texture
     glTexImage2D(GL_TEXTURE_2D, 0, texture->format, width, height, 0, texture->format, GL_UNSIGNED_BYTE, pixels);
     
     textureUnbind();

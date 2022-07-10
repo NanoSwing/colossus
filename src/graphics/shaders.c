@@ -80,9 +80,11 @@ static char *readFile(const char *path)
 
 Shader shaderCreate(const char *vertex_path, const char *fragmnet_path)
 {
+    // Read files
     char *vertex_source = readFile(vertex_path);
     char *fragment_source = readFile(fragmnet_path);
 
+    // Create shader
     Shader program = shaderCreateStr(vertex_source, fragment_source);
 
     free(vertex_source);
@@ -91,15 +93,8 @@ Shader shaderCreate(const char *vertex_path, const char *fragmnet_path)
     return program;
 }
 
-void shaderDestroy(Shader shader)
-{
-    glDeleteProgram(shader);
-}
-
-void shaderUse(Shader shader)
-{
-    glUseProgram(shader);
-}
+void shaderDestroy(Shader shader) { glDeleteProgram(shader); }
+void shaderUse(Shader shader) { glUseProgram(shader); }
 
 void shaderUniformMat4(Shader shader, const char *name, Mat4 mat)
 {

@@ -8,9 +8,12 @@
 
 #include <glad/glad.h>
 
-Graphics *graphicsCreate(I32 width, I32 height, const char *title, B8 resizable)
+Graphics *graphicsCreate(I32 width, I32 height, const char *title, B8 resizable, Camera **camera)
 {
-    Graphics *graphics = malloc(sizeof(graphics));
+    Graphics *graphics = malloc(sizeof(Graphics));
+    graphics->cam.position = vec2s(0.0f);
+    graphics->cam.scale = 1.0f;
+    *camera = &graphics->cam;
 
     // Init GLFW
     if (!glfwInit()) {
@@ -50,10 +53,12 @@ void graphicsDestroy(Graphics *graphics)
 void graphicsLoop(Graphics *graphics, void (*user_function)(void *args), void *args)
 {
     while (!glfwWindowShouldClose(graphics->window)) {
+        // Update graphics window size.
         glfwGetFramebufferSize(graphics->window, &graphics->width, &graphics->height);
 
         user_function(args);
 
+        // Update mouse and keyboard state since it's no longer the first frame of being pressed.
         for (I32 i = 0; i < GLFW_KEY_LAST; i++) {
             keyboard[i].first = false;
         }

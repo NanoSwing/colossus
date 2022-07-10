@@ -2,6 +2,7 @@
 
 #include "colossus/core/defs.h"
 #include "colossus/ecs/ecs.h"
+#include "colossus/graphics/graphics.h"
 
 /*
  * Global state structure.
@@ -11,6 +12,8 @@ typedef struct {
     F32 delta_time;
     /* Seconds between fixed time steps. */
     F32 fixed_delta_time;
+    /* Camera. */
+    Camera *camera;
 } GlobalState;
 /*
  * Global state.
