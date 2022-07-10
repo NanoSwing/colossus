@@ -14,7 +14,7 @@ Engine *engineCreate(I32 width, I32 height, const char *title, B8 resizable, I32
     Engine *engine = malloc(sizeof(Engine));
 
     engine->ecs = ecsCreate(max_entity_count, SYS_GROUP_COUNT);
-    engine->graphics = graphicsInit(width, height, title, resizable);
+    engine->graphics = graphicsCreate(width, height, title, resizable);
     engine->pipeline = pipelineCreate(engine->graphics, pixels_per_unit);
 
     *ecs = engine->ecs;
@@ -48,7 +48,7 @@ void engineDestroy(Engine **engine)
     
     ecsDestroy(&(*engine)->ecs);
     pipelineDestroy((*engine)->pipeline);
-    graphicsTerminate((*engine)->graphics);
+    graphicsDestroy((*engine)->graphics);
     free(*engine);
     *engine = NULL;
 }

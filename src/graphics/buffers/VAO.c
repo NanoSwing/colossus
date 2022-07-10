@@ -5,7 +5,6 @@
 VAO vaoCreate(void)
 {
     VAO vao = {0};
-    vao.vbo = (VBO) {.id = -1};
 
     glGenVertexArrays(1, (U32 *) &vao.id);
 

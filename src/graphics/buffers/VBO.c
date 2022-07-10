@@ -1,4 +1,5 @@
 #include "colossus/graphics/buffers/VBO.h"
+#include "colossus/core/logger.h"
 
 #include <stdlib.h>
 #include <glad/glad.h>
@@ -42,6 +43,11 @@ void vboDestroy(VBO vbo)
 
 void vboSendData(VBO vbo, const void *data, U64 data_size)
 {
+    if (!vbo.dynamic) {
+        logWarn("Unable to send data to a static VBO.");
+        return;
+    }
+
     vboBind(vbo);
     glBufferSubData(GL_ARRAY_BUFFER, 0, data_size, data);
 }

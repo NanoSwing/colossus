@@ -47,7 +47,7 @@ Pipeline *pipelineCreate(Graphics *graphics, I32 pixels_per_unit)
     shaderUniformIv(pl->shader, "textures", 32, samplers);
 
     I32 white = 0xFFFFFFFF;
-    pl->textures[0] = textureBlank(1, 1, SCALE_NEAREST, 4, &white);
+    pl->textures[0] = textureFromPixels(1, 1, SCALE_NEAREST, 4, &white);
     pl->texture_count = 1;
 
     pl->graphics = graphics;
@@ -59,8 +59,8 @@ Pipeline *pipelineCreate(Graphics *graphics, I32 pixels_per_unit)
             Vec2 uv;
         } QuadVert;
 
-        Texture screen_texture = textureBlank(1920, 1080, SCALE_NEAREST, 4, NULL);
-        pl->screen_fbo = fboCreate(1920, 1080, screen_texture);
+        Texture screen_texture = textureFromPixels(graphics->width, graphics->height, SCALE_NEAREST, 4, NULL);
+        pl->screen_fbo = fboCreate(screen_texture);
         
         QuadVert quad_vertices[4] = {
             {vec2(-1.0f, -1.0f), vec2(0.0f, 0.0f)},
@@ -83,7 +83,6 @@ Pipeline *pipelineCreate(Graphics *graphics, I32 pixels_per_unit)
             {.offset = offsetof(QuadVert, uv), .size = 2}
         };
         vaoAddVBO(pl->quad_vao, pl->quad_vbo, sizeof(QuadVert), quad_layout, 2);
-        vaoAddEBO(pl->quad_vao, pl->quad_ebo);
     }
 
     return pl;
@@ -115,7 +114,7 @@ void pipelineRender(Pipeline *pipeline, ECS *ecs)
     };
     proj = mat4Inverse(proj);
 
-    textureResize(pipeline->screen_fbo.color_attachment, width, height, NULL);
+    textureResize(&pipeline->screen_fbo.color_attachment, width, height, NULL);
 
     fboBind(pipeline->screen_fbo);
     glClearColor(hexRGBA_1(0x191919ff));
@@ -153,7 +152,6 @@ void pipelineRender(Pipeline *pipeline, ECS *ecs)
         drawQuad(pipeline, trans[e].position, trans[e].scale, trans[e].rotation, sr[e].color, sr[e].texture, frame_count, frame);
     }
 
-    batcherStop(&pipeline->batcher);
     batcherFlush(&pipeline->batcher);
 
     // Screen buffer
@@ -179,7 +177,6 @@ void drawQuad(Pipeline *pipeline, Vec2 position, Vec2 size, F32 rotation, Vec4 c
     Batcher *batcher = &pipeline->batcher;
 
     if (batcher->vertex_count == batcher->max_vertex_count || pipeline->texture_count == 32) {
-        batcherStop(batcher);
         batcherFlush(batcher);
     }
 

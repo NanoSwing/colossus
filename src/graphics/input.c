@@ -1,6 +1,7 @@
 #include "colossus/graphics/input.h"
 
 Key keyboard[348] = {0};
+Key mouse[3] = {0};
 
 B8 keyDown(KeyCode key_code)
 {
@@ -25,20 +26,24 @@ B8 keyUp(KeyCode key_code)
     return false;
 }
 
-B8 getMouseButtonDown(KeyCode mouse_button)
+B8 mouseButtonDown(MouseButtonCode mouse_button)
 {
-    (void) mouse_button;
+    if (mouse[mouse_button].pressed && mouse[mouse_button].first) {
+        return true;
+    }
     return false;
 }
 
-B8 getMouseButton(KeyCode mouse_button)
+B8 mouseButton(MouseButtonCode mouse_button)
 {
-    (void) mouse_button;
-    return false;
+    return mouse[mouse_button].pressed;
 }
 
-B8 getMouseButtonUp(KeyCode mouse_button)
+B8 mouseButtonUp(MouseButtonCode mouse_button)
 {
-    (void) mouse_button;
+    if (!mouse[mouse_button].pressed && mouse[mouse_button].first) {
+        return true;
+    }
+
     return false;
 }

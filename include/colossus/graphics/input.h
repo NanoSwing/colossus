@@ -2,14 +2,25 @@
 
 #include "colossus/core/defs.h"
 
+/*
+ * Key state.
+ */
 typedef struct {
+    /* Pressed. */
     B8 pressed;
+    /* First frame pressed or released. */
     B8 first;
 } Key;
 
+/*
+ * Store all key states.
+ */
 extern Key keyboard[348];
 
-
+/*
+ * Store all mouse button states.
+ */
+extern Key mouse[3];
 
 // Stolen from GLFW
 
@@ -140,10 +151,58 @@ typedef enum {
     KEY_MENU               = 348
 } KeyCode;
 
+typedef enum {
+    MOUSE_BUTTON_LEFT = 0,
+    MOUSE_BUTTON_MIDDLE = 2,
+    MOUSE_BUTTON_RIGHT = 1
+} MouseButtonCode;
+
+/*
+ * Is this the first frame the key is pressed.
+ *
+ * key_code - Key code.
+ * 
+ * Returns 1/true once when the key is first pressed, returns 0/false if not.
+ */
 extern B8 keyDown(KeyCode key_code);
+/*
+ * Get current state of key.
+ *
+ * key_code - Key code.
+ * 
+ * Returns 1/true if key is pressed, 0/false if not.
+ */
 extern B8 keyHold(KeyCode key_code);
+/*
+ * Is this the first frame the key is released.
+ *
+ * key_code - Key code.
+ * 
+ * Returns 1/true once when the key is first released, returns 0/false if not.
+ */
 extern B8 keyUp(KeyCode key_code);
 
-extern B8 getMouseButtonDown(KeyCode mouse_button);
-extern B8 getMouseButton(KeyCode mouse_button);
-extern B8 getMouseButtonUp(KeyCode mouse_button);
+/*
+ * Is this the first frame the mouse button is pressed.
+ *
+ * mouse_button - Mouse button ID.
+ * 
+ * Returns 1/true once when the mouse button is first pressed, returns 0/false if not.
+ */
+extern B8 mouseButtonDown(MouseButtonCode mouse_button);
+/*
+ * Get current state of mouse button.
+ *
+ * mouse_button - Mouse button ID.
+ * 
+ * Returns 1/true if mouse button is pressed, 0/false if not.
+ */
+extern B8 mouseButton(MouseButtonCode mouse_button);
+/*
+ * Is this the first frame the mouse button is released.
+ *
+ * mouse_button - Mouse button ID.
+ * 
+ * Returns 1/true once when the mouse button is first released, returns 0/false if not.
+ */
+extern B8 mouseButtonUp(MouseButtonCode mouse_button);

@@ -18,8 +18,10 @@ Shader shaderCreateStr(const char *vertex_source, const char *fragment_source)
     glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
     // Error handling
     if (!success) {
+        glDeleteShader(vertex_shader);
         glGetShaderInfoLog(vertex_shader, 512, NULL, info_log);
         logWarn("Vertex shader compilation error: '%s'", info_log);
+        return -1;
     }
 
     // Fragment shader
@@ -29,8 +31,11 @@ Shader shaderCreateStr(const char *vertex_source, const char *fragment_source)
     // Error handling
     glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
     if (!success) {
+        glDeleteShader(vertex_shader);
+        glDeleteShader(fragment_shader);
         glGetShaderInfoLog(fragment_shader, 512, NULL, info_log);
         logWarn("Fragment shader compilation error: '%s'\n", info_log);
+        return -1;
     }
 
     // Program
@@ -38,11 +43,14 @@ Shader shaderCreateStr(const char *vertex_source, const char *fragment_source)
     glAttachShader(program, vertex_shader);
     glAttachShader(program, fragment_shader);
     glLinkProgram(program);
+    glDeleteShader(vertex_shader);
+    glDeleteShader(fragment_shader);
     // Error handling
     glGetProgramiv(program, GL_LINK_STATUS, &success);
     if (!success) {
         glGetProgramInfoLog(program, 512, NULL, info_log);
         logWarn("Shader linking error: '%s'", info_log);
+        return -1;
     }
 
     return program;

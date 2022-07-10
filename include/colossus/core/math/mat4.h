@@ -65,9 +65,28 @@ static inline Mat4 mat4OrthoProjection(F32 left, F32 right, F32 top, F32 bottom,
     return proj;
 }
 
+/*
+ * Copy a 4x4 matrix into a float array.
+ *
+ * mat - 4x4 matrix to copy.
+ * floats - Float array to copy into.
+ */
 static inline void mat4ToFloats(Mat4 mat, F32 floats[4][4]) { memcpy(floats, &mat, sizeof(Mat4)); }
+/*
+ * Copy a float array into a4x4 matrix.
+ *
+ * mat - 4x4 matrix to copy into.
+ * floats - Float array to copy.
+ */
 static inline void mat4FromFloats(Mat4 *mat, F32 floats[4][4]) { memcpy(mat, floats, sizeof(Mat4)); }
 
+/*
+ * Invert a 4x4 matrix.
+ *
+ * mat - Matrix to invert.
+ * 
+ * Returns inverted matrix.
+ */
 static inline Mat4 mat4Inverse(Mat4 mat)
 {
     // https://semath.info/src/inverse-cofactor-ex4.html
@@ -94,7 +113,9 @@ static inline Mat4 mat4Inverse(Mat4 mat)
     F32 adj[4][4];
     for (I32 y = 0; y < 4; y++) {
         for (I32 x = 0; x < 4; x++) {
-            adj[x][y] = mat3Determinant(mat3FromFloat(m_f[x][y]));
+            Mat3 m;
+            mat3FromFloat(&m, m_f[x][y]);
+            adj[x][y] = mat3Determinant(m);
         }
     }
 

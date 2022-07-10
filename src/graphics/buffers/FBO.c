@@ -2,11 +2,9 @@
 
 #include <glad/glad.h>
 
-FBO fboCreate(I32 width, I32 height, Texture color_attachment)
+FBO fboCreate(Texture color_attachment)
 {
     FBO fbo;
-    fbo.width = width;
-    fbo.height = height;
     fbo.color_attachment = color_attachment;
 
     glGenFramebuffers(1, (U32 *) &fbo.id);

@@ -17,7 +17,7 @@ Texture textureFromFile(const char *path, TextureScaling scaling)
         return NULL_TEXTURE;
     }
 
-    texture = textureBlank(width, height, scaling, channels, data);
+    texture = textureFromPixels(width, height, scaling, channels, data);
     stbi_image_free(data);
 
     textureBind(texture);
@@ -27,7 +27,7 @@ Texture textureFromFile(const char *path, TextureScaling scaling)
     return texture;
 }
 
-Texture textureBlank(I32 width, I32 height, TextureScaling scaling, I8 channels, const void *pixels)
+Texture textureFromPixels(I32 width, I32 height, TextureScaling scaling, I8 channels, const void *pixels)
 {
     I32 format = channels == 3 ? GL_RGB : channels == 4 ? GL_RGBA : -1;
     if (format == -1) {
@@ -61,11 +61,13 @@ void textureBind(Texture texture) { glBindTexture(GL_TEXTURE_2D, texture.id); }
 void textureUnbind(void) { glBindTexture(GL_TEXTURE_2D, 0); }
 void textureBindUnit(I32 unit, Texture texture) { glBindTextureUnit(unit, texture.id); }
 
-void textureResize(Texture texture, I32 width, I32 height, const void *pixels)
+void textureResize(Texture *texture, I32 width, I32 height, const void *pixels)
 {
-    textureBind(texture);
+    textureBind(*texture);
+    texture->width = width;
+    texture->height = height;
     
-    glTexImage2D(GL_TEXTURE_2D, 0, texture.format, width, height, 0, texture.format, GL_UNSIGNED_BYTE, pixels);
+    glTexImage2D(GL_TEXTURE_2D, 0, texture->format, width, height, 0, texture->format, GL_UNSIGNED_BYTE, pixels);
     
     textureUnbind();
 }

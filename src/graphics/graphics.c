@@ -8,7 +8,7 @@
 
 #include <glad/glad.h>
 
-Graphics *graphicsInit(I32 width, I32 height, const char *title, B8 resizable)
+Graphics *graphicsCreate(I32 width, I32 height, const char *title, B8 resizable)
 {
     Graphics *graphics = malloc(sizeof(graphics));
 
@@ -29,6 +29,7 @@ Graphics *graphicsInit(I32 width, I32 height, const char *title, B8 resizable)
     glfwMakeContextCurrent(graphics->window);
     glfwSetFramebufferSizeCallback(graphics->window, framebufferSizeCallback);
     glfwSetKeyCallback(graphics->window, keyCallback);
+    glfwSetMouseButtonCallback(graphics->window, mouseButtonCallback);
     glfwSwapInterval(0);
 
     // Init glad
@@ -39,7 +40,7 @@ Graphics *graphicsInit(I32 width, I32 height, const char *title, B8 resizable)
     return graphics;
 }
 
-void graphicsTerminate(Graphics *graphics)
+void graphicsDestroy(Graphics *graphics)
 {
     glfwDestroyWindow(graphics->window);
     glfwTerminate();
@@ -55,6 +56,9 @@ void graphicsLoop(Graphics *graphics, void (*user_function)(void *args), void *a
 
         for (I32 i = 0; i < GLFW_KEY_LAST; i++) {
             keyboard[i].first = false;
+        }
+        for (I32 i = 0; i < 3; i++) {
+            mouse[i].first = false;
         }
 
         glfwSwapBuffers(graphics->window);

@@ -13,7 +13,6 @@ Batcher batcherCreate(U64 vertex_size, I32 max_vertex_count, const VertexLayout 
     batcher.ebo = eboCreate(indices, index_count);
 
     vaoAddVBO(batcher.vao, batcher.vbo, vertex_size, layoyt, layout_count);
-    vaoAddEBO(batcher.vao, batcher.ebo);
 
     batcher.vertex_buffer = malloc(vertex_size * max_vertex_count);
     batcher.vertex_count = 0;
@@ -33,18 +32,10 @@ void batcherDestroy(Batcher *batcher)
     batcher->vertex_buffer = NULL;
 }
 
-void batcherStart(Batcher *batcher)
-{
-    (void) batcher;
-}
-
-void batcherStop(Batcher *batcher)
-{
-    vboSendData(batcher->vbo, batcher->vertex_buffer, batcher->vertex_count * batcher->vertex_size);
-}
-
 void batcherFlush(Batcher *batcher)
 {
+    vboSendData(batcher->vbo, batcher->vertex_buffer, batcher->vertex_count * batcher->vertex_size);
+
     vaoBind(batcher->vao);
     eboBind(batcher->ebo);
 

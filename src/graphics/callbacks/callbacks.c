@@ -23,3 +23,17 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         keyboard[key].pressed = true;
     }
 }
+
+void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+{
+    (void) window;
+    (void) mods;
+
+    if (action == GLFW_RELEASE) {
+        mouse[button].first = true;
+        mouse[button].pressed = false;
+    } else if (action == GLFW_PRESS) {
+        mouse[button].first = true;
+        mouse[button].pressed = true;
+    }
+}
