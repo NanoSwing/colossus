@@ -79,9 +79,22 @@ extern void drawLineLength(Pipeline *pipeline, Vec2 start, F32 length, F32 angle
 /*
  * Draw a line between two points.
  *
+ * pipeline - Pipeline.
  * a - Position a.
  * b - Position b.
  * thickness - Thickness.
  * color - Color.
  */
 extern void drawLinePoints(Pipeline *pipeline, Vec2 a, Vec2 b, F32 thickness, Vec4 color);
+
+/*
+ * Draw a wireframe quad.
+ *
+ * pipeline - Pipeline.
+ * position - Position.
+ * size - Quad size.
+ * thickness - Line thickness.
+ * rotation - Rotation in degrees.
+ * color - Color.
+ */
+extern void drawWireQuad(Pipeline *pipeline, Vec2 position, Vec2 size, F32 thickness, F32 rotation, Vec4 color);

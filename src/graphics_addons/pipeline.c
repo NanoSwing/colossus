@@ -147,15 +147,16 @@ void pipelineRender(Pipeline *pipeline, ECS *ecs)
     for (I32 i = 0; i < pipeline->texture_count; i++) {
         textureBindUnit(i, pipeline->textures[i]);
     }
+    pipeline->texture_count = 1;
 
     // Render entities
-    const Component *comp = ecsGetComponent(ecs, COMP_SPRITE_RENDERER);
-    SpriteRenderer *sr = comp->storage;
+    const Component *sr_comp = ecsGetComponent(ecs, COMP_SPRITE_RENDERER);
+    SpriteRenderer *sr = sr_comp->storage;
 
     // Sort entities based on z-index
     EntitySpriteSortContainer *sorted_ents = daCreate(sizeof(EntitySpriteSortContainer));
-    for (I32 i = 0; i < daCount(comp->entities); i++) {
-        daPush(sorted_ents, ((EntitySpriteSortContainer) {.ent = comp->entities[i], .sr = sr[comp->entities[i].id]}));
+    for (I32 i = 0; i < daCount(sr_comp->entities); i++) {
+        daPush(sorted_ents, ((EntitySpriteSortContainer) {.ent = sr_comp->entities[i], .sr = sr[sr_comp->entities[i].id]}));
     }
     qsort(sorted_ents, daCount(sorted_ents), sizeof(EntitySpriteSortContainer), compareEntityZIndex);
 
@@ -186,43 +187,39 @@ void pipelineRender(Pipeline *pipeline, ECS *ecs)
     // Render the batch
     batcherFlush(&pipeline->batcher);
 
-    // Stop rendering to framebuffer
-    fboUnbind();
-
-    // Render to screen
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    // Render framebuffer texture to screen
-    textureBind(pipeline->screen_fbo.color_attachment);
-    shaderUse(pipeline->quad_shader);
-    vaoBind(pipeline->quad_vao);
-    eboBind(pipeline->quad_ebo);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
-    vaoUnbind();
-    eboUnbind();
-
-    // Render lines to buffer
-    fboBind(pipeline->screen_fbo);
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-
-    shaderUse(pipeline->shader);
-    shaderUniformMat4(pipeline->shader, "projection", proj);
-
-    // Upload textures
-    for (I32 i = 0; i < pipeline->texture_count; i++) {
-        textureBindUnit(i, pipeline->textures[i]);
+    // Register point lines
+    const Component *line_point_comp = ecsGetComponent(ecs, COMP_LINE_POINT_RENDERER);
+    LinePointRenderer *lpr = line_point_comp->storage;
+    for (I32 i = 0; i < daCount(line_point_comp->entities); i++) {
+        I32 e = line_point_comp->entities[i].id;
+        drawLinePoints(pipeline, lpr[e].a, lpr[e].b, lpr[e].thickness, lpr[e].color);
     }
-    // Reset textures
-    pipeline->texture_count = 1;
+    // Register length lines
+    const Component *line_length_comp = ecsGetComponent(ecs, COMP_LINE_LENGTH_RENDERER);
+    LineLengthRenderer *llr = line_length_comp->storage;
+    for (I32 i = 0; i < daCount(line_length_comp->entities); i++) {
+        I32 e = line_length_comp->entities[i].id;
+        drawLineLength(pipeline, llr[e].start, llr[e].length, llr[e].angle, llr[e].thickness, llr[e].color);
+    }
+    // Register wire quads
+    const Component *wire_quad_comp = ecsGetComponent(ecs, COMP_WIRE_QUAD_RENDERER);
+    WireQuadRenderer *wqr = wire_quad_comp->storage;
+    for (I32 i = 0; i < daCount(wire_quad_comp->entities); i++) {
+        Entity ent = wire_quad_comp->entities[i];
+        Transform *wq_transform = entityGetComponent(ent, COMP_TRANSFORM);
+        if (wq_transform == NULL) {
+            continue;
+        }
+        I32 e = ent.id;   
+        drawWireQuad(pipeline, wq_transform->position, wq_transform->scale, wqr[e].thickness, wq_transform->rotation, wqr[e].color);
+    }
 
+    // Render lines
     LineCall call;
     for (I32 i = 0; i < daCount(pipeline->lines); i++) {
         daPop(pipeline->lines, &call);
 
-        Vec2 line_pos = vec2MulS(vec2Sub(call.b, call.a), 0.5f);
+        Vec2 line_pos = vec2Add(call.a, vec2MulS(vec2Sub(call.b, call.a), 0.5f));
         F32 len = vec2Mag(vec2Sub(call.b, call.a));
         F32 opposite = call.b.y - call.a.y;
         F32 adjacent = call.b.x - call.a.x;
@@ -232,7 +229,12 @@ void pipelineRender(Pipeline *pipeline, ECS *ecs)
     }
     batcherFlush(&pipeline->batcher);
 
+    // Stop rendering to framebuffer
     fboUnbind();
+
+    // Render to screen
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
 
     // Render framebuffer texture to screen
     textureBind(pipeline->screen_fbo.color_attachment);
@@ -346,4 +348,39 @@ void drawLinePoints(Pipeline *pipeline, Vec2 a, Vec2 b, F32 thickness, Vec4 colo
         .color = color
     };
     daPush(pipeline->lines, call);
+}
+
+void drawWireQuad(Pipeline *pipeline, Vec2 position, Vec2 size, F32 thickness, F32 rotation, Vec4 color)
+{
+    const Vec2 pos[4] = {
+        vec2(-0.5f, -0.5f), // Bottom left
+        vec2( 0.5f, -0.5f), // Bottom right
+        vec2( 0.5f,  0.5f), // Top right
+        vec2(-0.5f,  0.5f)  // Top left
+    };
+    Vec2 offset[8] = {
+        vec2(thickness, thickness / 2.0f), vec2(0.0f, thickness / 2.0f),
+        vec2(-thickness / 2.0f, thickness), vec2(-thickness / 2.0f, 0.0f),
+        vec2(-thickness, -thickness / 2.0f), vec2(0.0f, -thickness / 2.0f),
+        vec2(thickness / 2.0f, -thickness), vec2(thickness / 2.0f, 0.0f)
+    };
+    for (I32 i = 0; i < 4; i++) {
+        Vec2 a = pos[i];
+        Vec2 b = pos[(i + 1) % 4];
+
+        a = vec2Mul(a, size);
+        a = vec2Add(a, offset[i * 2]);
+        a = vec2Rot(a, rotation);
+        a = vec2Add(a, position);
+
+        b = vec2Mul(b, size);
+        b = vec2Add(b, offset[i * 2 + 1]);
+        b = vec2Rot(b, rotation);
+        b = vec2Add(b, position);
+
+        a = vec2Floor(a);
+        b = vec2Floor(b);
+
+        drawLinePoints(pipeline, a, b, thickness, color);
+    }
 }
