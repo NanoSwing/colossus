@@ -14,6 +14,8 @@ typedef struct {
     Texture texture;
     /* Color. */
     Vec4 color;
+    /* Flip the texture horizontally. */
+    B8 flip_horizontal;
     /* Z layer specifing what objects should render on top of others. */
     I32 z_index;
 } SpriteRenderer;

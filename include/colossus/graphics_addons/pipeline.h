@@ -61,10 +61,11 @@ extern void pipelineRender(Pipeline *pipeline, ECS *ecs);
  * rotation - Rotation in degrees.
  * color - Color.
  * texture - Texture.
+ * flip_horizontally - Flip the UVs horizontally.
  * frame_count - Amount of frames in texture.
  * frame - Current frame.
  */
-extern void drawQuad(Pipeline *pipeline, Vec2 position, Vec2 size, F32 rotation, Vec4 color, Texture texture, I32 frame_count, I32 frame);
+extern void drawQuad(Pipeline *pipeline, Vec2 position, Vec2 size, F32 rotation, Vec4 color, Texture texture, B8 flip_horizontally, I32 frame_count, I32 frame);
 
 /*
  * Draw a line starting from a point and extruding a certain length.

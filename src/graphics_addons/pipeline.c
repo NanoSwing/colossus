@@ -180,7 +180,7 @@ void pipelineRender(Pipeline *pipeline, ECS *ecs)
         }
 
         // Batch the entity
-        drawQuad(pipeline, trans[e].position, trans[e].scale, trans[e].rotation, sr[e].color, sr[e].texture, frame_count, frame);
+        drawQuad(pipeline, trans[e].position, trans[e].scale, trans[e].rotation, sr[e].color, sr[e].texture, sr[e].flip_horizontal, frame_count, frame);
     }
     daDestroy(sorted_ents);
 
@@ -225,7 +225,7 @@ void pipelineRender(Pipeline *pipeline, ECS *ecs)
         F32 adjacent = call.b.x - call.a.x;
         F32 angle = atan(opposite / adjacent);
 
-        drawQuad(pipeline, line_pos, vec2(call.thickness, len), 90 - deg(angle), call.color, NULL_TEXTURE, 1, 0);
+        drawQuad(pipeline, line_pos, vec2(call.thickness, len), 90 - deg(angle), call.color, NULL_TEXTURE, false, 1, 0);
     }
     batcherFlush(&pipeline->batcher);
 
@@ -246,7 +246,7 @@ void pipelineRender(Pipeline *pipeline, ECS *ecs)
     eboUnbind();
 }
 
-void drawQuad(Pipeline *pipeline, Vec2 position, Vec2 size, F32 rotation, Vec4 color, Texture texture, I32 frame_count, I32 frame)
+void drawQuad(Pipeline *pipeline, Vec2 position, Vec2 size, F32 rotation, Vec4 color, Texture texture, B8 flip_horizontally, I32 frame_count, I32 frame)
 {
     Batcher *batcher = &pipeline->batcher;
 
@@ -291,10 +291,10 @@ void drawQuad(Pipeline *pipeline, Vec2 position, Vec2 size, F32 rotation, Vec4 c
     I32 frame_height = texture.height / frame_count;
     // Calculate UV coordinates for texture
     const Vec2 uvs[4] = {
-        vec2(0.0f, (F32) ((frame_count - frame - 1) * frame_height) / (F32) texture.height),
-        vec2(1.0f, (F32) ((frame_count - frame - 1) * frame_height) / (F32) texture.height),
-        vec2(0.0f, (F32) ((frame_count - frame) * frame_height) / (F32) texture.height),
-        vec2(1.0f, (F32) ((frame_count - frame) * frame_height) / (F32) texture.height)
+        vec2(flip_horizontally ? 1.0f : 0.0f, (F32) ((frame_count - frame - 1) * frame_height) / (F32) texture.height),
+        vec2(flip_horizontally ? 0.0f : 1.0f, (F32) ((frame_count - frame - 1) * frame_height) / (F32) texture.height),
+        vec2(flip_horizontally ? 1.0f : 0.0f, (F32) ((frame_count - frame) * frame_height) / (F32) texture.height),
+        vec2(flip_horizontally ? 0.0f : 1.0f, (F32) ((frame_count - frame) * frame_height) / (F32) texture.height)
     };
     
     // Update vertices
