@@ -53,3 +53,8 @@ void engineDestroy(Engine **engine)
     free(*engine);
     *engine = NULL;
 }
+
+Pipeline *engienGetPipeline(Engine *engine)
+{
+    return engine->pipeline;
+}

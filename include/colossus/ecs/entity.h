@@ -29,10 +29,10 @@ typedef struct {
  * 
  * Returns the created entity.
  */
-extern Entity ecsCreateEntity(ECS *ecs);
+extern Entity entityCreate(ECS *ecs);
 /*
  * Destroy the entity.
- * Removes all the components from the entity and making it available to be used again with ecsCreateEntity.
+ * Removes all the components from the entity and making it available to be used again with entityCreate.
  * 
  * entity - Entity.
  */

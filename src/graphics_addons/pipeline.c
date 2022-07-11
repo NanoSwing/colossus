@@ -57,6 +57,7 @@ Pipeline *pipelineCreate(Graphics *graphics)
     pl->texture_count = 1;
 
     pl->graphics = graphics;
+    pl->lines = daCreate(sizeof(LineCall));
 
     // Barebones quad vertex
     typedef struct {
@@ -146,9 +147,6 @@ void pipelineRender(Pipeline *pipeline, ECS *ecs)
     for (I32 i = 0; i < pipeline->texture_count; i++) {
         textureBindUnit(i, pipeline->textures[i]);
     }
-    // Reset textures
-    pipeline->texture_count = 1;
-
 
     // Render entities
     const Component *comp = ecsGetComponent(ecs, COMP_SPRITE_RENDERER);
@@ -198,12 +196,50 @@ void pipelineRender(Pipeline *pipeline, ECS *ecs)
     // Render framebuffer texture to screen
     textureBind(pipeline->screen_fbo.color_attachment);
     shaderUse(pipeline->quad_shader);
-    shaderUniformMat4(pipeline->quad_shader, "projection", proj);
     vaoBind(pipeline->quad_vao);
     eboBind(pipeline->quad_ebo);
-    
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
+    vaoUnbind();
+    eboUnbind();
 
+    // Render lines to buffer
+    fboBind(pipeline->screen_fbo);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+
+    shaderUse(pipeline->shader);
+    shaderUniformMat4(pipeline->shader, "projection", proj);
+
+    // Upload textures
+    for (I32 i = 0; i < pipeline->texture_count; i++) {
+        textureBindUnit(i, pipeline->textures[i]);
+    }
+    // Reset textures
+    pipeline->texture_count = 1;
+
+    LineCall call;
+    for (I32 i = 0; i < daCount(pipeline->lines); i++) {
+        daPop(pipeline->lines, &call);
+
+        Vec2 line_pos = vec2MulS(vec2Sub(call.b, call.a), 0.5f);
+        F32 len = vec2Mag(vec2Sub(call.b, call.a));
+        F32 opposite = call.b.y - call.a.y;
+        F32 adjacent = call.b.x - call.a.x;
+        F32 angle = atan(opposite / adjacent);
+
+        drawQuad(pipeline, line_pos, vec2(call.thickness, len), 90 - deg(angle), call.color, NULL_TEXTURE, 1, 0);
+    }
+    batcherFlush(&pipeline->batcher);
+
+    fboUnbind();
+
+    // Render framebuffer texture to screen
+    textureBind(pipeline->screen_fbo.color_attachment);
+    shaderUse(pipeline->quad_shader);
+    vaoBind(pipeline->quad_vao);
+    eboBind(pipeline->quad_ebo);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
     vaoUnbind();
     eboUnbind();
 }
@@ -285,4 +321,29 @@ void drawQuad(Pipeline *pipeline, Vec2 position, Vec2 size, F32 rotation, Vec4 c
         // Increase vertex count/index
         (*index)++;
     }
+}
+
+void drawLineLength(Pipeline *pipeline, Vec2 start, F32 length, F32 angle, F32 thickness, Vec4 color)
+{
+    Vec2 b = vec2(0, 1);
+    b = vec2Rot(b, angle);
+    b = vec2MulS(b, length);
+    LineCall call = {
+        .a = start,
+        .b = b,
+        .thickness = thickness,
+        .color = color
+    };
+    daPush(pipeline->lines, call);
+}
+
+void drawLinePoints(Pipeline *pipeline, Vec2 a, Vec2 b, F32 thickness, Vec4 color)
+{
+    LineCall call = {
+        .a = a,
+        .b = b,
+        .thickness = thickness,
+        .color = color
+    };
+    daPush(pipeline->lines, call);
 }

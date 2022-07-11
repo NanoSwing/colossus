@@ -23,7 +23,7 @@ static B8 checkNullEntity(Entity ent) { return (ent.id == NULL_ENTITY.id || ent.
 /*
  * Create an entity instance with a ID and the ECS.
  */
-Entity ecsCreateEntity(ECS *ecs)
+Entity entityCreate(ECS *ecs)
 {
     return (Entity) {.ecs = ecs, internalEcsGetEntityID(ecs)};
 }

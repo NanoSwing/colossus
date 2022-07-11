@@ -53,7 +53,7 @@ I32 main(void)
     ecsBake(ecs);
 
     // Create an entity
-    Entity player = ecsCreateEntity(ecs);
+    Entity player = entityCreate(ecs);
     // Add components
     entityAddComponent(player, COMP_POSITION);
     entityAddComponent(player, COMP_VELCOITY);

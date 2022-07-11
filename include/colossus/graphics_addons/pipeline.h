@@ -65,3 +65,23 @@ extern void pipelineRender(Pipeline *pipeline, ECS *ecs);
  * frame - Current frame.
  */
 extern void drawQuad(Pipeline *pipeline, Vec2 position, Vec2 size, F32 rotation, Vec4 color, Texture texture, I32 frame_count, I32 frame);
+
+/*
+ * Draw a line starting from a point and extruding a certain length.
+ *
+ * start - Starting position.
+ * length - Length.
+ * angle - Angle in degrees.
+ * thickness - Thickness.
+ * color - Color.
+ */
+extern void drawLineLength(Pipeline *pipeline, Vec2 start, F32 length, F32 angle, F32 thickness, Vec4 color);
+/*
+ * Draw a line between two points.
+ *
+ * a - Position a.
+ * b - Position b.
+ * thickness - Thickness.
+ * color - Color.
+ */
+extern void drawLinePoints(Pipeline *pipeline, Vec2 a, Vec2 b, F32 thickness, Vec4 color);

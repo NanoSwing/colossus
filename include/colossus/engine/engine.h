@@ -3,6 +3,7 @@
 #include "colossus/core/defs.h"
 #include "colossus/ecs/ecs.h"
 #include "colossus/graphics/graphics.h"
+#include "colossus/graphics_addons/pipeline.h"
 
 /*
  * Global state structure.
@@ -72,3 +73,10 @@ extern void engineStart(Engine *engine);
  * engine - Pointer to engine. Will be set to NULL.
  */
 extern void engineDestroy(Engine **engine);
+
+/*
+ * Get the graphics pipeline in the engine.
+ *
+ * engine - Engine.
+ */
+extern Pipeline *engienGetPipeline(Engine *engine);
