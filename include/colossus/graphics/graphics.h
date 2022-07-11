@@ -45,3 +45,10 @@ extern void graphicsDestroy(Graphics *graphics);
  * args - Arguments sent to the user function.
  */
 extern void graphicsLoop(Graphics *graphics, void (*user_function)(void *args), void *args);
+
+/*
+ * Toggles window fullscreen on current monitor.
+ *
+ * graphics - Graphics object.
+ */
+extern void graphicsToggleFullscreen(Graphics *graphics);

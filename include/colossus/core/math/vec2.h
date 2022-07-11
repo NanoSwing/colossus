@@ -22,6 +22,8 @@ static inline Vec2 vec2DivS(Vec2 a, F32 scaler) { return vec2(a.x / scaler, a.y 
 static inline Vec2 vec2AddS(Vec2 a, F32 scaler) { return vec2(a.x + scaler, a.y + scaler); }
 static inline Vec2 vec2SubS(Vec2 a, F32 scaler) { return vec2(a.x - scaler, a.y - scaler); }
 
+static inline Vec2 vec2Floor(Vec2 a) { return vec2(floorf(a.x), floorf(a.y)); }
+
 static inline F32 vec2Mag(Vec2 a) { return sqrt(a.x * a.x + a.y * a.y); }
 static inline Vec2 vec2Normalize(Vec2 a)
 {

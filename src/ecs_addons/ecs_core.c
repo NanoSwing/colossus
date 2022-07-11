@@ -1,6 +1,8 @@
 #include "colossus/ecs_addons/core_ecs.h"
 #include "colossus/resource_manager/resource_manager.h"
 #include "colossus/engine/engine.h"
+#include "colossus/graphics/input.h"
+#include "colossus/graphics/graphics.h"
 
 static void calculateDeltaTimeSystem(ECS *ecs)
 {
@@ -22,9 +24,20 @@ static void calculateDeltaTimeSystem(ECS *ecs)
     global.delta_time = delta_time;
 }
 
+static void fullscreenSystem(ECS *ecs)
+{
+    (void) ecs;
+    
+    if (keyDown(KEY_F11)) {
+        Graphics *graphics = *(Graphics **) resourceGet("graphics");
+        graphicsToggleFullscreen(graphics);
+    }
+}
+
 I32 COMP_TRANSFORM = -1;
 void ecsAddonCore(ECS *ecs, U32 system_group)
 {
     COMP_TRANSFORM = ecsAddComponent(ecs, sizeof(Transform));
     ecsAddSystem(ecs, calculateDeltaTimeSystem, system_group);
+    ecsAddSystem(ecs, fullscreenSystem, system_group);
 }

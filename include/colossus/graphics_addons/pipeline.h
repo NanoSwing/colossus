@@ -35,7 +35,7 @@ typedef struct Pipeline Pipeline;
  *
  * Returns pipeline object.
  */
-extern Pipeline *pipelineCreate(Graphics *graphics, I32 pixels_per_unit);
+extern Pipeline *pipelineCreate(Graphics *graphics);
 /*
  * Destroy pipeline.
  * Make sure to destroy pipeline before graphics.

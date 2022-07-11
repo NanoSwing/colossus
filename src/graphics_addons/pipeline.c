@@ -14,7 +14,7 @@
 #define MAX_VERTEX_COUNT MAX_QUAD_COUNT * 4
 #define MAX_INDEX_COUNT MAX_QUAD_COUNT * 6
 
-Pipeline *pipelineCreate(Graphics *graphics, I32 pixels_per_unit)
+Pipeline *pipelineCreate(Graphics *graphics)
 {
     Pipeline *pl = malloc(sizeof(Pipeline));
 
@@ -57,7 +57,6 @@ Pipeline *pipelineCreate(Graphics *graphics, I32 pixels_per_unit)
     pl->texture_count = 1;
 
     pl->graphics = graphics;
-    pl->pixels_per_unit = pixels_per_unit;
 
     // Barebones quad vertex
     typedef struct {
@@ -264,12 +263,15 @@ void drawQuad(Pipeline *pipeline, Vec2 position, Vec2 size, F32 rotation, Vec4 c
     for (I32 i = 0; i < 4; i++) {
         Vec2 vert_pos = pos[i];
         // Transform vertex to correct position
-        vert_pos = vec2Mul(vert_pos, vec2MulS(size, pipeline->pixels_per_unit));
+        vert_pos = vec2Mul(vert_pos, size);
         vert_pos = vec2Rot(vert_pos, rotation);
-        vert_pos = vec2Add(vert_pos, vec2MulS(position, pipeline->pixels_per_unit));
+        vert_pos = vec2Add(vert_pos, position);
         // Transform for camera
-        vert_pos = vec2MulS(vert_pos, 1.0f / pipeline->graphics->cam.scale);
-        vert_pos = vec2Sub(vert_pos, vec2MulS(pipeline->graphics->cam.position, pipeline->pixels_per_unit));
+        vert_pos = vec2Sub(vert_pos, pipeline->graphics->cam.position);
+
+        // vert_pos = vec2MulS(vert_pos, 1.0f / pipeline->graphics->cam.scale);
+        vert_pos = vec2Floor(vert_pos);
+        vert_pos = vec2AddS(vert_pos, 0.5f);
         
         buffer[*index].pos = vert_pos;
 

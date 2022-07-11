@@ -70,3 +70,26 @@ void graphicsLoop(Graphics *graphics, void (*user_function)(void *args), void *a
         glfwPollEvents();
     }
 }
+
+void graphicsToggleFullscreen(Graphics *graphics)
+{
+    static I32 old_width = 0;
+    static I32 old_height = 0;
+    static I32 old_x = 0;
+    static I32 old_y = 0;
+
+    static B8 is_fullscreen = false;
+
+    if (!is_fullscreen) {
+        glfwGetWindowPos(graphics->window, &old_x, &old_y);
+        glfwGetWindowSize(graphics->window, &old_width, &old_height);
+        
+        GLFWmonitor *glfw_monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode *mode = glfwGetVideoMode(glfw_monitor);
+        glfwSetWindowMonitor(graphics->window, glfw_monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+    } else {
+        glfwSetWindowMonitor(graphics->window, NULL, old_x, old_y, old_width, old_height, GLFW_DONT_CARE);
+    }
+
+    is_fullscreen = !is_fullscreen;
+}
